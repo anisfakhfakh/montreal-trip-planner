@@ -1,0 +1,1061 @@
+{
+  "_comment": "Canonical route list for route-validation testing. Shared source of truth between validate_routes.py (which geocodes nothing -- lat/lon are pinned here directly) and the Route Validation Log artifact (whose embedded ROUTES array mirrors these same routes/ids/tags/times by hand -- keep both in sync if this file changes). Routes #4-37 also carry an allowedModes field: bixi forced false for a randomly-chosen subset (diversify away from BIXI-heavy results); a randomly-chosen subset of 7 routes forced to bus-only or metro/rem-only instead of all three transit modes; and every route (4-37) got a random max_walk_minutes cap (5/10/15/20/null=infinite), sent through as modes.max_walk_minutes on /api/plan_trip -- see project memory for which ids and why. Routes #1-3 intentionally left without the field (validate_routes.py defaults to all-true, no walk cap, for those).",
+  "routes": [
+    {
+      "id": 1,
+      "from": "1000 rue de la Gauchetière O",
+      "fromArea": "Downtown",
+      "to": "Centre Bell",
+      "toArea": "Downtown",
+      "cat": "trivial",
+      "tags": [
+        "sanity",
+        "walk"
+      ],
+      "focus": "Same-block sanity check -- two points ~600m apart, same neighborhood. Expect a walk-only itinerary and near-zero time delta vs. Google Maps.",
+      "origin": {
+        "lat": 45.4984,
+        "lon": -73.5667
+      },
+      "destination": {
+        "lat": 45.4961,
+        "lon": -73.5693
+      },
+      "defaultTime": "10:54",
+      "dayType": "any"
+    },
+    {
+      "id": 2,
+      "from": "Peel Basin (Griffintown)",
+      "fromArea": "Griffintown",
+      "to": "Marché Atwater",
+      "toArea": "Saint-Henri",
+      "cat": "short",
+      "tags": [
+        "bixi",
+        "walk"
+      ],
+      "focus": "Short hop between adjacent boroughs -- good candidate for a walk vs. BIXI comparison.",
+      "origin": {
+        "lat": 45.4919,
+        "lon": -73.556
+      },
+      "destination": {
+        "lat": 45.4832,
+        "lon": -73.5788
+      },
+      "defaultTime": "08:21",
+      "dayType": "any"
+    },
+    {
+      "id": 3,
+      "from": "Guy & Sainte-Catherine",
+      "fromArea": "Downtown",
+      "to": "Marché Bonsecours",
+      "toArea": "Old Montreal",
+      "cat": "short",
+      "tags": [
+        "metro",
+        "bixi"
+      ],
+      "focus": "Downtown-to-Old-Montreal corridor at weekday rush hour -- retargeted/retimed from McGill/Vieux-Port (which just picked BIXI outright at any hour) to a pair whose true optimal mixes Metro (one stop) with a BIXI leg the rest of the way.",
+      "origin": {
+        "lat": 45.4949,
+        "lon": -73.5789
+      },
+      "destination": {
+        "lat": 45.5093,
+        "lon": -73.5534
+      },
+      "defaultTime": "17:30",
+      "dayType": "weekday"
+    },
+    {
+      "id": 4,
+      "from": "Parc La Fontaine",
+      "fromArea": "Plateau-Mont-Royal",
+      "to": "Rue Bernard & Ave du Parc",
+      "toArea": "Mile End",
+      "cat": "short",
+      "tags": [
+        "bixi",
+        "bus"
+      ],
+      "focus": "BIXI-to-bus combo between two dense, bike-friendly boroughs -- retimed from 13:10 to weekday rush hour (17:30), which is when Bus 80 beats a pure BIXI ride for the last stretch instead of BIXI winning outright.",
+      "origin": {
+        "lat": 45.5259,
+        "lon": -73.5701
+      },
+      "destination": {
+        "lat": 45.5219,
+        "lon": -73.6013
+      },
+      "defaultTime": "17:30",
+      "dayType": "weekday",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": null
+      }
+    },
+    {
+      "id": 5,
+      "from": "Beaubien & Saint-Denis",
+      "fromArea": "Rosemont–La Petite-Patrie",
+      "to": "Laurier metro",
+      "toArea": "Plateau-Mont-Royal",
+      "cat": "short",
+      "tags": [
+        "bus",
+        "metro"
+      ],
+      "focus": "Bus-to-metro feeder trip -- retargeted from Mont-Royal/Laurier metro (a single-stop, metro-only hop that never mixed modes) to an origin a bus ride away from the Orange line, same allowedModes kept (bus/metro/rem on, BIXI off, walk<=10min). Stable Bus->Metro at both the original time and on weekends.",
+      "origin": {
+        "lat": 45.5395,
+        "lon": -73.6021
+      },
+      "destination": {
+        "lat": 45.5279,
+        "lon": -73.5865
+      },
+      "defaultTime": "14:52",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": false,
+        "max_walk_minutes": 10
+      }
+    },
+    {
+      "id": 6,
+      "from": "Côte-des-Neiges & Queen-Mary",
+      "fromArea": "Côte-des-Neiges",
+      "to": "Jean-Talon metro",
+      "toArea": "Villeray",
+      "cat": "medium",
+      "tags": [
+        "metro",
+        "baseline"
+      ],
+      "focus": "Reuses a known perf-testing baseline origin -- retargeted to a direct Blue-line ride (Cote-des-Neiges to Jean-Talon, no transfer) after the original destination let BIXI win outright; still a good cross-reference point for timing.",
+      "origin": {
+        "lat": 45.4939,
+        "lon": -73.6229
+      },
+      "destination": {
+        "lat": 45.5411,
+        "lon": -73.6136
+      },
+      "defaultTime": "05:15",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 7,
+      "from": "Monkland Village",
+      "fromArea": "NDG",
+      "to": "Cavendish Mall",
+      "toArea": "Côte-Saint-Luc",
+      "cat": "short",
+      "tags": [
+        "bus",
+        "bixi"
+      ],
+      "focus": "BIXI-to-bus hop through low-density, affluent boroughs -- retargeted from Westmount Park after the original pair let BIXI win the whole trip; now a real bike+Bus 66 combo.",
+      "origin": {
+        "lat": 45.4675,
+        "lon": -73.6151
+      },
+      "destination": {
+        "lat": 45.478,
+        "lon": -73.6438
+      },
+      "defaultTime": "19:30",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 8,
+      "from": "Verdun Beach (Plage de l'Horloge)",
+      "fromArea": "Verdun",
+      "to": "Marché Atwater",
+      "toArea": "Saint-Henri",
+      "cat": "medium",
+      "tags": [
+        "bixi"
+      ],
+      "focus": "BIXI along the Lachine Canal path -- tests OSRM bike routing on a dedicated bike corridor.",
+      "origin": {
+        "lat": 45.4494,
+        "lon": -73.5714
+      },
+      "destination": {
+        "lat": 45.4832,
+        "lon": -73.5788
+      },
+      "defaultTime": "06:21",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 5
+      }
+    },
+    {
+      "id": 9,
+      "from": "Angrignon metro / Park",
+      "fromArea": "LaSalle",
+      "to": "Marché Atwater",
+      "toArea": "Saint-Henri",
+      "cat": "medium",
+      "tags": [
+        "metro"
+      ],
+      "focus": "Green-line ride from the western terminus into Saint-Henri -- retargeted from Lachine Canal after the original pair let BIXI win outright; boards right at Angrignon, no bus needed.",
+      "origin": {
+        "lat": 45.4462,
+        "lon": -73.6035
+      },
+      "destination": {
+        "lat": 45.4832,
+        "lon": -73.5788
+      },
+      "defaultTime": "12:08",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 10,
+      "from": "Verdun metro",
+      "fromArea": "Verdun",
+      "to": "Brossard REM terminus",
+      "toArea": "Brossard (South Shore)",
+      "cat": "medium",
+      "tags": [
+        "rem",
+        "bridge",
+        "bixi"
+      ],
+      "focus": "REM test across a bridge crossing -- extended past Nun's Island to the South Shore terminus after the original pair let BIXI ride the whole bridge crossing unaided; now bikes to the Île-des-Soeurs REM station then rides the REM branch across.",
+      "origin": {
+        "lat": 45.4587,
+        "lon": -73.5679
+      },
+      "destination": {
+        "lat": 45.4381,
+        "lon": -73.4306
+      },
+      "defaultTime": "19:02",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 10
+      }
+    },
+    {
+      "id": 11,
+      "from": "Île-des-Sœurs REM station",
+      "fromArea": "Nun's Island",
+      "to": "Gare Centrale",
+      "toArea": "Downtown",
+      "cat": "medium",
+      "tags": [
+        "rem"
+      ],
+      "focus": "Full REM segment into the downtown terminus.",
+      "origin": {
+        "lat": 45.4703,
+        "lon": -73.5389
+      },
+      "destination": {
+        "lat": 45.5,
+        "lon": -73.567
+      },
+      "defaultTime": "16:00",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": null
+      }
+    },
+    {
+      "id": 12,
+      "from": "Brossard REM terminus",
+      "fromArea": "Brossard (South Shore)",
+      "to": "McGill University",
+      "toArea": "Downtown",
+      "cat": "long",
+      "tags": [
+        "rem",
+        "south-shore"
+      ],
+      "focus": "Cross-river REM commute from the real South Shore terminus (Station Brossard) into downtown.",
+      "origin": {
+        "lat": 45.4381,
+        "lon": -73.4306
+      },
+      "destination": {
+        "lat": 45.5048,
+        "lon": -73.5772
+      },
+      "defaultTime": "07:29",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 13,
+      "from": "Longueuil–Université-de-Sherbrooke metro",
+      "fromArea": "Longueuil (South Shore)",
+      "to": "Berri-UQAM metro",
+      "toArea": "Downtown/Plateau",
+      "cat": "medium",
+      "tags": [
+        "metro",
+        "south-shore"
+      ],
+      "focus": "Yellow line into the Orange/Green interchange -- also exercises the <20m correspondance-transfer fix at Berri-UQAM.",
+      "origin": {
+        "lat": 45.5257,
+        "lon": -73.5217
+      },
+      "destination": {
+        "lat": 45.5152,
+        "lon": -73.5605
+      },
+      "defaultTime": "10:00",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 20
+      }
+    },
+    {
+      "id": 14,
+      "from": "Côte-Vertu metro",
+      "fromArea": "Saint-Laurent",
+      "to": "Honoré-Beaugrand metro",
+      "toArea": "Mercier",
+      "cat": "cross-island",
+      "tags": [
+        "metro",
+        "baseline"
+      ],
+      "focus": "Known cross-island metro-only baseline route -- good timing cross-reference (multiple transfers).",
+      "origin": {
+        "lat": 45.5145,
+        "lon": -73.6875
+      },
+      "destination": {
+        "lat": 45.5978,
+        "lon": -73.533
+      },
+      "defaultTime": "17:26",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": false,
+        "metro": true,
+        "rem": false,
+        "bixi": true,
+        "max_walk_minutes": null
+      }
+    },
+    {
+      "id": 15,
+      "from": "Jean-Talon Market",
+      "fromArea": "Villeray",
+      "to": "Berri-UQAM metro",
+      "toArea": "Downtown/Plateau",
+      "cat": "short",
+      "tags": [
+        "metro"
+      ],
+      "focus": "Metro-only trip (bus forced off) down the Orange line trunk -- retimed from 01:53 to 14:20 after the original 01:53 slot combined with bus-off made the trip structurally impossible during metro's nightly closure, forcing BIXI as the only way to move at all; also retargeted from Plaza Saint-Hubert since that pair let BIXI win anyway.",
+      "origin": {
+        "lat": 45.5367,
+        "lon": -73.6151
+      },
+      "destination": {
+        "lat": 45.5152,
+        "lon": -73.5605
+      },
+      "defaultTime": "14:20",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": false,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 20
+      }
+    },
+    {
+      "id": 16,
+      "from": "Beaubien & Saint-Hubert",
+      "fromArea": "Rosemont–La Petite-Patrie",
+      "to": "Chinatown (rue de la Gauchetière)",
+      "toArea": "Chinatown",
+      "cat": "medium",
+      "tags": [
+        "metro",
+        "bixi"
+      ],
+      "focus": "BIXI-to-metro combo into downtown -- retargeted from Olympic Stadium (which let BIXI win outright even under the 5-min walk cap); now bikes to Rosemont metro then rides the Orange line into Place-d'Armes.",
+      "origin": {
+        "lat": 45.5407,
+        "lon": -73.6006
+      },
+      "destination": {
+        "lat": 45.5061,
+        "lon": -73.5605
+      },
+      "defaultTime": "22:15",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 5
+      }
+    },
+    {
+      "id": 17,
+      "from": "Marché Central",
+      "fromArea": "Ahuntsic-Cartierville",
+      "to": "Parc Jarry",
+      "toArea": "Villeray",
+      "cat": "medium",
+      "tags": [
+        "bus"
+      ],
+      "focus": "North-borough bus corridor, moderate density.",
+      "origin": {
+        "lat": 45.5299,
+        "lon": -73.6669
+      },
+      "destination": {
+        "lat": 45.5363,
+        "lon": -73.6265
+      },
+      "defaultTime": "22:45",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 10
+      }
+    },
+    {
+      "id": 18,
+      "from": "Henri-Bourassa metro",
+      "fromArea": "Ahuntsic-Cartierville",
+      "to": "Henri-Bourassa E & Léger",
+      "toArea": "Montréal-Nord",
+      "cat": "medium",
+      "tags": [
+        "bus",
+        "sparse"
+      ],
+      "focus": "Bus-heavy north-end trip into a borough with sparse metro coverage.",
+      "origin": {
+        "lat": 45.5546,
+        "lon": -73.6693
+      },
+      "destination": {
+        "lat": 45.589,
+        "lon": -73.63
+      },
+      "defaultTime": "03:11",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": false,
+        "rem": false,
+        "bixi": true,
+        "max_walk_minutes": 10
+      }
+    },
+    {
+      "id": 19,
+      "from": "Langelier & Jean-Talon E",
+      "fromArea": "Saint-Léonard",
+      "to": "Peel metro",
+      "toArea": "Downtown",
+      "cat": "long",
+      "tags": [
+        "bus",
+        "metro"
+      ],
+      "focus": "Long commute from an underserved borough -- bus into metro trunk line.",
+      "origin": {
+        "lat": 45.588,
+        "lon": -73.5836
+      },
+      "destination": {
+        "lat": 45.4998,
+        "lon": -73.5751
+      },
+      "defaultTime": "21:30",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 20
+      }
+    },
+    {
+      "id": 21,
+      "from": "RDP Library (boul. Perras)",
+      "fromArea": "Rivière-des-Prairies",
+      "to": "Anjou metro area",
+      "toArea": "Anjou",
+      "cat": "medium",
+      "tags": [
+        "bus",
+        "sparse"
+      ],
+      "focus": "Far east-end periphery -- tests behavior in the sparsest-transit part of the coverage area.",
+      "origin": {
+        "lat": 45.646,
+        "lon": -73.515
+      },
+      "destination": {
+        "lat": 45.5915,
+        "lon": -73.5445
+      },
+      "defaultTime": "15:32",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": false,
+        "max_walk_minutes": 20
+      }
+    },
+    {
+      "id": 22,
+      "from": "Parc Outremont",
+      "fromArea": "Outremont",
+      "to": "Rue Bernard & Ave du Parc",
+      "toArea": "Mile End",
+      "cat": "short",
+      "tags": [
+        "walk",
+        "bixi"
+      ],
+      "focus": "Short walk/BIXI hop between adjacent affluent boroughs.",
+      "origin": {
+        "lat": 45.5188,
+        "lon": -73.6096
+      },
+      "destination": {
+        "lat": 45.5219,
+        "lon": -73.6013
+      },
+      "defaultTime": "16:58",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 20
+      }
+    },
+    {
+      "id": 23,
+      "from": "Université de Montréal",
+      "fromArea": "Côte-des-Neiges/Outremont",
+      "to": "Jean-Talon Market",
+      "toArea": "Villeray",
+      "cat": "medium",
+      "tags": [
+        "walk",
+        "bus"
+      ],
+      "focus": "Hilltop campus start -- Mount Royal terrain affects walking/biking time estimates.",
+      "origin": {
+        "lat": 45.5048,
+        "lon": -73.6142
+      },
+      "destination": {
+        "lat": 45.5367,
+        "lon": -73.6151
+      },
+      "defaultTime": "11:27",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 24,
+      "from": "Beaver Lake, Parc du Mont-Royal",
+      "fromArea": "Plateau/Outremont",
+      "to": "Vieux-Port de Montréal",
+      "toArea": "Old Montreal",
+      "cat": "medium",
+      "tags": [
+        "ebike",
+        "hilly"
+      ],
+      "focus": "Force e-bike mode on a hilly route -- compare against regular BIXI to sanity-check the e-bike assist modeling.",
+      "origin": {
+        "lat": 45.5058,
+        "lon": -73.5959
+      },
+      "destination": {
+        "lat": 45.5075,
+        "lon": -73.554
+      },
+      "defaultTime": "09:30",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 20
+      }
+    },
+    {
+      "id": 25,
+      "from": "Pointe-Claire Village",
+      "fromArea": "Pointe-Claire (West Island)",
+      "to": "Fairview Pointe-Claire",
+      "toArea": "Pointe-Claire (West Island)",
+      "cat": "short",
+      "tags": [
+        "sparse",
+        "edge"
+      ],
+      "focus": "Short local trip in a low-density suburb -- tests behavior near the edge of the service area bounds.",
+      "origin": {
+        "lat": 45.4515,
+        "lon": -73.8171
+      },
+      "destination": {
+        "lat": 45.4547,
+        "lon": -73.8267
+      },
+      "defaultTime": "09:42",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": false,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 26,
+      "from": "Kirkland Recreation Centre",
+      "fromArea": "Kirkland (West Island)",
+      "to": "Lionel-Groulx metro",
+      "toArea": "Saint-Henri",
+      "cat": "long",
+      "tags": [
+        "bus",
+        "edge"
+      ],
+      "focus": "Long peripheral commute, bus into the metro trunk -- stresses the edge of the map bounds. Retimed from 18:01 to 15:00 and pinned to weekday after the original any-day/18:01/15min-walk-cap combo returned 404 -- root cause was weekend (not evening) bus service near Kirkland being too sparse for the walk cap, not the hour itself; see project memory.",
+      "origin": {
+        "lat": 45.4477,
+        "lon": -73.8737
+      },
+      "destination": {
+        "lat": 45.482,
+        "lon": -73.5779
+      },
+      "defaultTime": "15:00",
+      "dayType": "weekday",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": false,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 27,
+      "from": "Pierrefonds–Roxboro station",
+      "fromArea": "Pierrefonds-Roxboro",
+      "to": "Gare Centrale",
+      "toArea": "Downtown",
+      "cat": "long",
+      "tags": [
+        "bus",
+        "metro",
+        "edge"
+      ],
+      "focus": "Commuter-rail-adjacent West Island trip, likely bus+metro fallback if exo/REM isn't in scope.",
+      "origin": {
+        "lat": 45.4972,
+        "lon": -73.85
+      },
+      "destination": {
+        "lat": 45.5,
+        "lon": -73.567
+      },
+      "defaultTime": "14:14",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 5
+      }
+    },
+    {
+      "id": 28,
+      "from": "Place Jacques-Cartier",
+      "fromArea": "Old Montreal",
+      "to": "rue de la Gauchetière (Chinatown)",
+      "toArea": "Chinatown",
+      "cat": "trivial",
+      "tags": [
+        "walk",
+        "sanity"
+      ],
+      "focus": "Short tourist-corridor walk through the dense downtown grid.",
+      "origin": {
+        "lat": 45.5088,
+        "lon": -73.5537
+      },
+      "destination": {
+        "lat": 45.5061,
+        "lon": -73.5605
+      },
+      "defaultTime": "07:36",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": false,
+        "max_walk_minutes": null
+      }
+    },
+    {
+      "id": 29,
+      "from": "Chinatown (rue de la Gauchetière)",
+      "fromArea": "Chinatown",
+      "to": "Little Italy (Jean-Talon & St-Laurent)",
+      "toArea": "Villeray/Rosemont",
+      "cat": "medium",
+      "tags": [
+        "bus",
+        "metro"
+      ],
+      "focus": "North-south cross-town trip, mixed bus/metro.",
+      "origin": {
+        "lat": 45.5061,
+        "lon": -73.5605
+      },
+      "destination": {
+        "lat": 45.5367,
+        "lon": -73.6151
+      },
+      "defaultTime": "20:23",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": false,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 30,
+      "from": "Complexe Desjardins",
+      "fromArea": "Downtown",
+      "to": "Galeries d'Anjou",
+      "toArea": "Anjou",
+      "cat": "long",
+      "tags": [
+        "bus",
+        "metro"
+      ],
+      "focus": "Long cross-town errand-style trip, downtown to the east end.",
+      "origin": {
+        "lat": 45.5083,
+        "lon": -73.5644
+      },
+      "destination": {
+        "lat": 45.6089,
+        "lon": -73.5595
+      },
+      "defaultTime": "04:13",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 31,
+      "from": "Concordia SGW (1455 de Maisonneuve O)",
+      "fromArea": "Downtown",
+      "to": "Concordia Loyola (7141 Sherbrooke O)",
+      "toArea": "NDG",
+      "cat": "medium",
+      "tags": [
+        "bus",
+        "known-corridor"
+      ],
+      "focus": "Real shuttle-route corridor -- Concordia's own published shuttle time is a third data point beyond Google Maps. Retimed from 02:28 to 03:35 (case 6: half of the no-metro-but-bus routes moved into the post-2AM closure window, before metro's ~5:30 AM reopening).",
+      "origin": {
+        "lat": 45.4966,
+        "lon": -73.5789
+      },
+      "destination": {
+        "lat": 45.4585,
+        "lon": -73.6398
+      },
+      "defaultTime": "03:35",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": false,
+        "rem": false,
+        "bixi": false,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 32,
+      "from": "Saint-Laurent & Mont-Royal",
+      "fromArea": "Plateau-Mont-Royal",
+      "to": "Jean-Talon Market",
+      "toArea": "Villeray",
+      "cat": "short",
+      "tags": [
+        "night",
+        "frequency",
+        "bus"
+      ],
+      "focus": "Run at ~2:30 AM weekend -- tests night-bus frequency handling versus Google's own late-night schedule awareness during metro's closure window (after 2 AM, before ~5:30 AM reopening). Retargeted from a Rosemont residential address (which let BIXI win outright with metro/rem forced off) to a pair that picks up night Bus 361 up Saint-Denis. Retimed from 01:00 to 02:30 (case 6: half of the no-metro-but-bus routes moved into the post-2AM closure window).",
+      "origin": {
+        "lat": 45.5225,
+        "lon": -73.5793
+      },
+      "destination": {
+        "lat": 45.5367,
+        "lon": -73.6151
+      },
+      "defaultTime": "02:30",
+      "dayType": "weekend",
+      "allowedModes": {
+        "bus": true,
+        "metro": false,
+        "rem": false,
+        "bixi": true,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 33,
+      "from": "Monkland Village",
+      "fromArea": "NDG",
+      "to": "Peel metro",
+      "toArea": "Downtown",
+      "cat": "medium",
+      "tags": [
+        "rush-hour"
+      ],
+      "focus": "Run at 8:00 AM weekday -- pair with #34 to compare rush-hour behavior.",
+      "origin": {
+        "lat": 45.4675,
+        "lon": -73.6151
+      },
+      "destination": {
+        "lat": 45.4998,
+        "lon": -73.5751
+      },
+      "defaultTime": "08:00",
+      "dayType": "weekday",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 34,
+      "from": "Monkland Village",
+      "fromArea": "NDG",
+      "to": "Peel metro",
+      "toArea": "Downtown",
+      "cat": "medium",
+      "tags": [
+        "off-peak"
+      ],
+      "focus": "Same pair as #33, run at 2:00 PM weekday -- isolates schedule/frequency sensitivity from the route choice itself.",
+      "origin": {
+        "lat": 45.4675,
+        "lon": -73.6151
+      },
+      "destination": {
+        "lat": 45.4998,
+        "lon": -73.5751
+      },
+      "defaultTime": "14:00",
+      "dayType": "weekday",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 5
+      }
+    },
+    {
+      "id": 35,
+      "from": "Downtown (Peel / Ste-Catherine)",
+      "fromArea": "Downtown",
+      "to": "Casino de Montréal",
+      "toArea": "Parc Jean-Drapeau",
+      "cat": "long",
+      "tags": [
+        "bus",
+        "baseline",
+        "bridge"
+      ],
+      "focus": "Reuses a known perf-testing baseline route -- island-hopping via bridge, bus-heavy, good timing cross-reference.",
+      "origin": {
+        "lat": 45.5017,
+        "lon": -73.5715
+      },
+      "destination": {
+        "lat": 45.5055,
+        "lon": -73.5258
+      },
+      "defaultTime": "23:55",
+      "dayType": "any",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 20
+      }
+    },
+    {
+      "id": 36,
+      "from": "Saint-Denis & Mont-Royal",
+      "fromArea": "Plateau-Mont-Royal",
+      "to": "Wellington & de l'Église",
+      "toArea": "Verdun",
+      "cat": "medium",
+      "tags": [
+        "late-night-closure",
+        "bus"
+      ],
+      "focus": "Run at 2:30 AM weekday -- metro and REM are closed; checks that the app falls back to the night bus network (or walk/BIXI) instead of erroring or silently offering a metro leg that doesn't actually run. Bus re-enabled so this route can actually exercise that fallback.",
+      "origin": {
+        "lat": 45.5241,
+        "lon": -73.5809
+      },
+      "destination": {
+        "lat": 45.4589,
+        "lon": -73.5697
+      },
+      "defaultTime": "02:30",
+      "dayType": "weekday",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": false,
+        "max_walk_minutes": 15
+      }
+    },
+    {
+      "id": 37,
+      "from": "Peel & Ste-Catherine",
+      "fromArea": "Downtown",
+      "to": "Henri-Bourassa metro",
+      "toArea": "Ahuntsic-Cartierville",
+      "cat": "medium",
+      "tags": [
+        "late-night-closure",
+        "bus"
+      ],
+      "focus": "Run at 3:00 AM weekday -- same closure check as #36, retargeted from Cote-des-Neiges (a pair short enough that BIXI beat any fallback outright) to a longer haul that actually surfaces the night Bus 363 fallback the test is meant to exercise.",
+      "origin": {
+        "lat": 45.5017,
+        "lon": -73.5715
+      },
+      "destination": {
+        "lat": 45.5546,
+        "lon": -73.6693
+      },
+      "defaultTime": "03:00",
+      "dayType": "weekday",
+      "allowedModes": {
+        "bus": true,
+        "metro": true,
+        "rem": true,
+        "bixi": true,
+        "max_walk_minutes": 15
+      }
+    }
+  ]
+}

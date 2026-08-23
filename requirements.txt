@@ -1,0 +1,8 @@
+Flask
+python-dotenv
+networkx
+pandas
+requests
+gtfs-kit
+gtfs-realtime-bindings
+numpy

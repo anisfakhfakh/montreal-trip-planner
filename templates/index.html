@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Montreal Trip Planner</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div id="app">
+    <div id="sidebar">
+      <div id="sidebar-resize-handle" title="Drag to resize"></div>
+      <h1>Montreal Trip Planner</h1>
+      <p id="instructions">Search for an address or click the map to set your departure point, then your destination.</p>
+
+      <div id="search-box" class="sidebar-card">
+        <div class="search-field" data-field="origin">
+          <label class="search-field-label" for="origin-search">From</label>
+          <div class="search-input-row">
+            <input type="text" id="origin-search" placeholder="Search departure address..." autocomplete="off">
+            <button type="button" id="origin-clear" class="field-clear" title="Clear departure" hidden>&times;</button>
+          </div>
+          <ul id="origin-search-results" class="search-results"></ul>
+          <button id="use-location">Use my location</button>
+        </div>
+        <div class="search-field" data-field="destination">
+          <label class="search-field-label" for="dest-search">To</label>
+          <div class="search-input-row">
+            <input type="text" id="dest-search" placeholder="Search destination address..." autocomplete="off">
+            <button type="button" id="dest-clear" class="field-clear" title="Clear destination" hidden>&times;</button>
+          </div>
+          <ul id="dest-search-results" class="search-results"></ul>
+        </div>
+      </div>
+
+      <div id="trip-timing" class="sidebar-card">
+        <p class="mode-selection-title">When do you want to leave?</p>
+        <div class="timing-toggle">
+          <button type="button" id="leave-now-btn" class="timing-toggle-btn">Leave now</button>
+          <button type="button" id="leave-at-btn" class="timing-toggle-btn">Leave at</button>
+        </div>
+        <div id="leave-at-fields" hidden>
+          <select id="leave-at-date"></select>
+          <input type="time" id="leave-at-time">
+        </div>
+      </div>
+
+      <div id="mode-selection" class="sidebar-card">
+        <p class="mode-selection-title">Which modes do you want to use?</p>
+        <label><input type="checkbox" class="mode-check" data-mode="bus" checked> Bus</label>
+        <label><input type="checkbox" class="mode-check" data-mode="metro" checked> Metro</label>
+        <label><input type="checkbox" class="mode-check" data-mode="rem" checked> REM</label>
+        <label><input type="checkbox" class="mode-check" data-mode="bixi" checked> BIXI</label>
+        <label class="max-walk-label">Max walking time per leg (minutes):
+          <input type="number" id="max-walk-minutes" min="1" step="1" placeholder="No limit">
+        </label>
+        <div id="ebike-option">
+          <label><input type="checkbox" id="allow-ebike"> Allow electric BIXI</label>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <p id="plan-trip-hint">Set a departure and destination to plan your trip.</p>
+        <button id="plan-trip-btn" hidden>Plan my trip</button>
+        <button id="reset-btn">Reset</button>
+      </div>
+
+      <div id="weather-debrief"></div>
+      <div id="results"></div>
+
+      <div id="data-refresh" class="sidebar-card">
+        <p class="mode-selection-title">Data freshness</p>
+        <div class="data-refresh-row">
+          <button type="button" id="refresh-bixi-btn" class="data-refresh-btn">Refresh BIXI coverage</button>
+          <span id="refresh-bixi-status" class="data-refresh-status"></span>
+        </div>
+        <div class="data-refresh-row">
+          <button type="button" id="refresh-stm-btn" class="data-refresh-btn">Refresh STM schedule</button>
+          <span id="refresh-stm-status" class="data-refresh-status"></span>
+        </div>
+      </div>
+    </div>
+    <div id="map"></div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+</body>
+</html>

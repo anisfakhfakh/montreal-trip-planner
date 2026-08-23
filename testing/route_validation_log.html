@@ -1,0 +1,1482 @@
+<title>Route Validation Log — Montreal Trip Planner</title>
+<style>
+  :root{
+    --paper:#eef2ef;
+    --card:#ffffff;
+    --ink:#16242a;
+    --ink-soft:#4c5c60;
+    --ink-faint:#7c8a8a;
+    --accent:#0b6e5c;
+    --accent-soft:#dceee8;
+    --line-green:#00a651;
+    --line-green-soft:#e2f5ea;
+    --line-yellow:#c99400;
+    --line-yellow-soft:#faf0d6;
+    --line-orange:#e8631a;
+    --line-orange-soft:#fbe6da;
+    --line-red:#c0392b;
+    --line-red-soft:#f9e0dc;
+    --line-green-dark:#00753f;
+    --line-green-dark-soft:#dcf0e6;
+    --line-blue:#0083ca;
+    --line-blue-soft:#daedf7;
+    --bixi:#d6001c;
+    --bixi-soft:#fbe3e3;
+    --neutral:#8d9a98;
+    --neutral-soft:#e7ebea;
+    --rule:#d9dfdc;
+    --rule-strong:#c3ccc8;
+    --mono: "Cascadia Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
+    --sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent);}
+  .wrap{max-width:1180px;margin:0 auto;padding:2.5rem 1.5rem 6rem;}
+
+  /* ---- masthead ---- */
+  .masthead{
+    display:flex;
+    align-items:flex-start;
+    gap:1.25rem;
+    padding-bottom:1.5rem;
+    border-bottom:3px solid var(--ink);
+    margin-bottom:1.75rem;
+  }
+  .masthead-bar{
+    width:10px;
+    align-self:stretch;
+    background:linear-gradient(var(--line-green),var(--line-yellow) 34%,var(--line-orange) 67%, var(--accent));
+    border-radius:2px;
+    flex-shrink:0;
+  }
+  .masthead-body{
+    flex:1 1 auto;
+    min-width:0;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:0.72rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:700;
+    margin:0 0 0.4rem;
+  }
+  .masthead p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:0.98rem;
+  }
+
+  /* ---- stat strip ---- */
+  .stats{
+    display:flex;
+    gap:0.75rem;
+    flex-wrap:wrap;
+    margin-bottom:1.75rem;
+  }
+  .stat{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:10px;
+    padding:0.7rem 1rem;
+    min-width:118px;
+    flex:1 1 118px;
+  }
+  .stat .n{
+    font-family:var(--mono);
+    font-variant-numeric:tabular-nums;
+    font-size:1.5rem;
+    font-weight:700;
+    line-height:1;
+  }
+  .stat .l{
+    font-size:0.72rem;
+    color:var(--ink-faint);
+    text-transform:uppercase;
+    letter-spacing:0.07em;
+    margin-top:0.3rem;
+  }
+  .stat.match .n{color:var(--line-orange);}
+  .stat.faster .n{color:var(--line-green-dark);}
+  .stat.mismatch .n{color:var(--line-red);}
+  .stat.investigate .n{color:var(--line-yellow);}
+  .stat.pending .n{color:var(--neutral);}
+
+  /* ---- placards ---- */
+  .placards{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1rem;
+    margin-bottom:2rem;
+  }
+  @media (max-width:820px){ .placards{grid-template-columns:1fr;} }
+  .placard{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-left:4px solid var(--accent);
+    border-radius:8px;
+    padding:1.1rem 1.25rem;
+  }
+  .placard.warn{border-left-color:var(--line-orange);}
+  .placard h2{
+    font-size:0.95rem;
+    margin:0 0 0.6rem;
+    font-weight:700;
+  }
+  .placard ol, .placard ul{
+    margin:0;
+    padding-left:1.15rem;
+    font-size:0.87rem;
+    color:var(--ink-soft);
+  }
+  .placard li{margin-bottom:0.4rem;}
+  .placard li:last-child{margin-bottom:0;}
+  .placard code{
+    font-family:var(--mono);
+    background:var(--accent-soft);
+    padding:0.05rem 0.3rem;
+    border-radius:4px;
+    font-size:0.83em;
+  }
+
+  /* ---- toolbar ---- */
+  .toolbar{
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    flex-wrap:wrap;
+    margin-bottom:1rem;
+  }
+  .toolbar input[type="search"]{
+    flex:1 1 220px;
+    padding:0.55rem 0.8rem;
+    border:1px solid var(--rule-strong);
+    border-radius:7px;
+    font-family:var(--sans);
+    font-size:0.9rem;
+    background:var(--card);
+    color:var(--ink);
+  }
+  select.filter{
+    padding:0.55rem 0.7rem;
+    border:1px solid var(--rule-strong);
+    border-radius:7px;
+    background:var(--card);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:0.85rem;
+  }
+  button{
+    font-family:var(--sans);
+    cursor:pointer;
+  }
+  .btn{
+    padding:0.55rem 0.9rem;
+    border-radius:7px;
+    border:1px solid var(--rule-strong);
+    background:var(--card);
+    color:var(--ink);
+    font-size:0.85rem;
+    font-weight:600;
+  }
+  .btn:hover{border-color:var(--accent);color:var(--accent);}
+  .btn.primary{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+  .btn.primary:hover{background:#0a5c4d;color:#fff;}
+  .btn.danger:hover{border-color:var(--line-orange);color:var(--line-orange);}
+  *:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---- route list ---- */
+  .route{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:10px;
+    margin-bottom:0.6rem;
+    overflow:hidden;
+  }
+  .route-head{
+    display:grid;
+    grid-template-columns:2.4rem 1fr 1fr auto auto auto;
+    align-items:center;
+    gap:0.8rem;
+    padding:0.85rem 1rem;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .route-head:hover{background:var(--paper);}
+  .rid{
+    font-family:var(--mono);
+    font-variant-numeric:tabular-nums;
+    color:var(--ink-faint);
+    font-size:0.85rem;
+  }
+  .rod .from, .rod .to{
+    font-size:0.92rem;
+  }
+  .rod .from b, .rod .to b{font-weight:700;}
+  .rod .arrow{color:var(--ink-faint);margin:0 0.35rem;}
+  .rod .area{
+    display:block;
+    font-size:0.74rem;
+    color:var(--ink-faint);
+    margin-top:0.1rem;
+  }
+  .rod .addr{
+    display:block;
+    font-family:var(--mono);
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    margin-top:0.15rem;
+    user-select:all;
+  }
+  .time-badge{
+    font-family:var(--mono);
+    font-variant-numeric:tabular-nums;
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    background:var(--paper);
+    border:1px solid var(--rule);
+    padding:0.2rem 0.5rem;
+    border-radius:6px;
+    white-space:nowrap;
+  }
+  .tags{
+    display:flex;
+    gap:0.3rem;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    max-width:220px;
+  }
+  .tag{
+    font-family:var(--mono);
+    font-size:0.68rem;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:0.15rem 0.45rem;
+    border-radius:5px;
+    background:var(--neutral-soft);
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .legs-col{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:0.2rem;
+    max-width:170px;
+  }
+  .legs-col-label{
+    font-family:var(--mono);
+    font-size:0.62rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    white-space:nowrap;
+  }
+  .legs{
+    display:flex;
+    gap:0.3rem;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .leg-chip{
+    font-family:var(--mono);
+    font-size:0.68rem;
+    letter-spacing:0.02em;
+    padding:0.15rem 0.45rem;
+    border-radius:5px;
+    background:var(--accent-soft);
+    color:var(--accent);
+    white-space:nowrap;
+  }
+  .leg-chip.walk-cap{
+    background:var(--line-yellow-soft);
+    color:var(--line-yellow);
+  }
+  .leg-filter{
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+    padding:0.3rem 0.6rem;
+    border:1px solid var(--rule-strong);
+    border-radius:7px;
+    background:var(--card);
+  }
+  .leg-filter-label{
+    font-family:var(--mono);
+    font-size:0.68rem;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    white-space:nowrap;
+  }
+  .leg-filter-btn{
+    font-family:var(--mono);
+    font-size:0.72rem;
+    letter-spacing:0.02em;
+    padding:0.3rem 0.6rem;
+    border-radius:6px;
+    border:1px solid var(--rule-strong);
+    background:var(--paper);
+    color:var(--ink-soft);
+  }
+  .leg-filter-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .leg-filter-btn.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+  .status-pill{
+    font-family:var(--mono);
+    font-size:0.72rem;
+    font-weight:700;
+    padding:0.25rem 0.6rem;
+    border-radius:20px;
+    white-space:nowrap;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+  .status-pending{background:var(--neutral-soft);color:var(--ink-faint);}
+  .status-match{background:var(--line-blue-soft);color:var(--line-blue);}
+  .status-similar{background:var(--line-orange-soft);color:var(--line-orange);}
+  .status-mismatch{background:var(--line-red-soft);color:var(--line-red);}
+  .status-slower{background:var(--line-red-soft);color:var(--line-red);}
+  .status-faster{background:var(--line-green-dark-soft);color:var(--line-green-dark);}
+  .status-investigate{background:var(--line-yellow-soft);color:var(--line-yellow);}
+
+  .route-body{
+    display:none;
+    padding:0 1.1rem 1.1rem;
+    border-top:1px solid var(--rule);
+  }
+  .route.open .route-body{display:block;}
+  .route.open .chev{transform:rotate(90deg);}
+  .chev{
+    display:inline-block;
+    transition:transform 0.15s ease;
+    color:var(--ink-faint);
+    font-size:0.8rem;
+  }
+  .focus-line{
+    font-size:0.85rem;
+    color:var(--ink-soft);
+    padding:0.8rem 0 0.9rem;
+    border-bottom:1px dashed var(--rule);
+    margin-bottom:0.9rem;
+  }
+  .focus-line b{color:var(--ink);}
+
+  .departure-row{
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    margin-bottom:0.9rem;
+  }
+  .departure-row label{
+    font-size:0.72rem;
+    color:var(--ink-faint);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+  .departure-row input[type="datetime-local"]{
+    font-family:var(--mono);
+    font-variant-numeric:tabular-nums;
+    font-size:0.85rem;
+    padding:0.35rem 0.5rem;
+    border:1px solid var(--rule-strong);
+    border-radius:6px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+
+  .compare-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:1rem;
+    margin-bottom:0.9rem;
+  }
+  @media (max-width:900px){ .compare-grid{grid-template-columns:1fr;} }
+  .compare-col{
+    border:1px solid var(--rule);
+    border-radius:8px;
+    padding:0.8rem 0.9rem;
+  }
+  .compare-col h3{
+    margin:0 0 0.65rem;
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-faint);
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+  }
+  .compare-col h3::before{
+    content:"";
+    width:7px;height:7px;
+    border-radius:50%;
+  }
+  .compare-col.app h3::before{background:var(--accent);}
+  .compare-col.gmaps h3::before{background:#4285f4;}
+  .compare-col.gbixi h3::before{background:var(--bixi);}
+  .field-row{
+    display:flex;
+    gap:0.5rem;
+    margin-bottom:0.5rem;
+  }
+  .field{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:0.25rem;
+  }
+  .field label{
+    font-size:0.68rem;
+    color:var(--ink-faint);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .field input, .field select, .field textarea{
+    font-family:var(--mono);
+    font-variant-numeric:tabular-nums;
+    font-size:0.87rem;
+    padding:0.4rem 0.5rem;
+    border:1px solid var(--rule-strong);
+    border-radius:6px;
+    background:var(--paper);
+    color:var(--ink);
+    width:100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    background:#fff;
+  }
+  textarea{resize:vertical;min-height:2.4rem;font-family:var(--sans) !important;}
+
+  .mode-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.35rem;
+    min-height:1.9rem;
+    padding:0.3rem 0.1rem;
+  }
+  .mode-chips:empty::after{
+    content:"No modes added yet";
+    font-size:0.78rem;
+    color:var(--ink-faint);
+    font-style:italic;
+  }
+  .mode-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:0.3rem;
+    font-family:var(--sans);
+    font-size:0.8rem;
+    font-weight:600;
+    background:var(--accent-soft);
+    color:var(--accent);
+    padding:0.2rem 0.35rem 0.2rem 0.6rem;
+    border-radius:20px;
+  }
+  .compare-col.gmaps .mode-chip{background:#e8f0fd;color:#2f5fc4;}
+  .compare-col.gbixi .mode-chip{background:var(--bixi-soft);color:var(--bixi);}
+  .gmaps-link-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:0.3rem;
+    font-family:var(--sans);
+    font-size:0.8rem;
+    font-weight:600;
+    padding:0.35rem 0.6rem;
+    border-radius:6px;
+    border:1px solid #4285f4;
+    color:#2f5fc4;
+    text-decoration:none;
+    margin-bottom:0.35rem;
+  }
+  .gmaps-link-btn:hover{background:#e8f0fd;}
+  .gmaps-link-caption{
+    display:block;
+    font-size:0.72rem;
+    color:var(--ink-faint);
+    font-style:italic;
+    margin:0 0 0.6rem;
+  }
+  .chip-remove{
+    border:none;
+    background:transparent;
+    color:inherit;
+    font-size:0.95rem;
+    line-height:1;
+    padding:0 0.15rem;
+    border-radius:50%;
+    opacity:0.65;
+  }
+  .chip-remove:hover{opacity:1;background:rgba(0,0,0,0.08);}
+  .mode-palette{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.3rem;
+    margin-top:0.3rem;
+  }
+  .mode-add-btn{
+    font-family:var(--sans);
+    font-size:0.74rem;
+    font-weight:600;
+    padding:0.22rem 0.55rem;
+    border-radius:6px;
+    border:1px dashed var(--rule-strong);
+    background:transparent;
+    color:var(--ink-soft);
+  }
+  .mode-add-btn:hover{border-color:var(--accent);color:var(--accent);border-style:solid;}
+
+  .verdict-row{
+    display:flex;
+    align-items:center;
+    gap:0.9rem;
+    flex-wrap:wrap;
+    padding-top:0.2rem;
+  }
+  .delta{
+    font-family:var(--mono);
+    font-variant-numeric:tabular-nums;
+    font-size:0.85rem;
+    color:var(--ink-soft);
+  }
+  .delta b{color:var(--ink);}
+  .status-select{
+    font-family:var(--mono);
+    font-size:0.78rem;
+    font-weight:700;
+    padding:0.35rem 0.6rem;
+    border-radius:6px;
+    border:1px solid var(--rule-strong);
+    text-transform:uppercase;
+  }
+
+  .legs-section{
+    margin-bottom:0.9rem;
+  }
+  .legs-section h3{
+    margin:0 0 0.5rem;
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-faint);
+  }
+  .legs-tabs{
+    display:flex;
+    gap:0.4rem;
+    margin-bottom:0.5rem;
+  }
+  .legs-tab-btn{
+    font-family:var(--mono);
+    font-size:0.74rem;
+    letter-spacing:0.02em;
+    padding:0.32rem 0.7rem;
+    border-radius:6px;
+    border:1px solid var(--rule-strong);
+    background:var(--paper);
+    color:var(--ink-soft);
+  }
+  .legs-tab-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .legs-tab-btn.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+  .legs-empty{
+    font-size:0.83rem;
+    color:var(--ink-faint);
+    font-style:italic;
+    margin:0;
+  }
+  .legs-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:0.83rem;
+  }
+  .legs-table th{
+    text-align:left;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-faint);
+    font-weight:600;
+    padding:0.3rem 0.5rem;
+    border-bottom:1px solid var(--rule-strong);
+  }
+  .legs-table td{
+    padding:0.4rem 0.5rem;
+    border-bottom:1px solid var(--rule);
+    vertical-align:top;
+  }
+  .legs-table tbody tr:last-child td{border-bottom:none;}
+  .legs-table td.mono, .legs-table th.mono{
+    font-family:var(--mono);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+  .leg-label{
+    font-weight:600;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+
+  footer{
+    margin-top:2.5rem;
+    padding-top:1.25rem;
+    border-top:1px solid var(--rule);
+    font-size:0.78rem;
+    color:var(--ink-faint);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:0.5rem;
+  }
+  .hidden{display:none !important;}
+
+  /* ---- tabs ---- */
+  .tabs{
+    display:flex;
+    gap:0.4rem;
+    margin-bottom:1.5rem;
+    border-bottom:1px solid var(--rule);
+  }
+  .tab-btn{
+    font-family:var(--sans);
+    font-size:0.88rem;
+    font-weight:700;
+    padding:0.6rem 1rem;
+    border:none;
+    background:transparent;
+    color:var(--ink-faint);
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+  }
+  .tab-btn:hover{color:var(--ink);}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+  /* ---- allowed-modes tab ---- */
+  .mode-flag{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:1.5rem;height:1.5rem;
+    border-radius:6px;
+    font-size:0.8rem;
+    font-weight:700;
+  }
+  .mode-flag.on{background:var(--line-green-soft);color:var(--line-green);}
+  .mode-flag.off{background:var(--neutral-soft);color:var(--ink-faint);}
+  .modes-table-wrap{overflow-x:auto;}
+</style>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="masthead-bar"></div>
+    <div class="masthead-body">
+      <p class="eyebrow">Route testing results</p>
+      <p>36 real trips across Montreal and its subareas, using different REM/metro, BIXI and bus legs. Each trip from departure to destination is compared in 3 different ways:
+        <ul>
+          <li> This app's own hybrid Trip Planner (Walking, Transit and BIXI) 
+          <li> The Google maps transit search 
+          <li> BIXI's biking only biking planing
+            <ul>
+      Every comparison includes a leg-by-leg breakdown of where exactly the time is spent, including waiting time and transfers.<ul></p>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button type="button" class="tab-btn active" id="tab-btn-list" role="tab" aria-selected="true">Route list</button>
+    <button type="button" class="tab-btn" id="tab-btn-modes" role="tab" aria-selected="false">Allowed modes</button>
+  </div>
+
+  <div id="tab-panel-list">
+  <div class="stats">
+    <div class="stat pending"><div class="n" id="stat-pending">36</div><div class="l">Not tested</div></div>
+    <div class="stat match"><div class="n" id="stat-match">0</div><div class="l">Match</div></div>
+    <div class="stat faster"><div class="n" id="stat-faster">0</div><div class="l">Faster Route</div></div>
+    <div class="stat mismatch"><div class="n" id="stat-mismatch">0</div><div class="l">Time mismatch</div></div>
+    <div class="stat investigate"><div class="n" id="stat-investigate">0</div><div class="l">Investigate</div></div>
+    <div class="stat"><div class="n" id="stat-avgdelta">—</div><div class="l">Avg. time delta</div></div>
+  </div>
+
+  <div class="placards">
+    <div class="placard">
+      <h2>How results are recorded</h2>
+      <ol>
+        <li>An automated script runs every route above through both the Trip Planner and a live
+          Google Transit search, then saves the results to a file.</li>
+        <li><b>Import script results</b> loads that file, filling in the Trip Planner and Google
+          Transit columns automatically — time, transfers, modes used, and a leg-by-leg breakdown
+          for each (toggle between "Trip Planner" and "Google Transit" under "Leg by leg" once a
+          route is expanded).</li>
+        <li>For routes where BIXI is allowed, a Google Maps biking-directions link is checked by
+          hand, and the resulting time and distance are entered into the Google BIXI column.</li>
+        <li>Once the Trip Planner and Google numbers are filled in, a status is suggested
+          automatically: same modes and a similar time → <b>Match</b>; same modes but a bigger time
+          gap → <b>Potential time mismatch</b>; different modes but the Trip Planner is faster →
+          <b>Faster Route</b>; different modes and not faster → <b>Investigate</b>. This can always
+          be corrected by hand, with a note added to explain why.</li>
+      </ol>
+    </div>
+    <div class="placard warn">
+      <h2>Notes on expected differences</h2>
+      <ul>
+        <li><b>Bike-share availability</b>: the app checks live BIXI dock data, but Google Maps'
+          bike-share information can lag or be missing for some routes — bike-share legs won't
+          always match exactly, and Google may not offer a biking option at all in some cases.</li>
+        <li>Bike legs are capped at <b>45 minutes</b> of continuous riding before the app suggests
+          swapping bikes at a dock — Google Maps has no such limit.</li>
+        <li>Short transfers between metro and bus (under about 20m of walking) are shown as a
+          waiting time rather than a separate walking leg — Google Maps may still show a short
+          walk for the same transfer.</li>
+        <li>Walking directions come from a different mapping source than Google's, so they can
+          follow a slightly different — but similar-length — street path.</li>
+        <li>Weather conditions and the risk score are informational only and never change which
+          route is suggested.</li>
+        <li>Between roughly <b>1:00–5:00 AM</b>, the metro and REM don't run — routes #36–37 are
+          deliberately scheduled in that window to confirm the app falls back to a night bus,
+          walking, or BIXI instead of suggesting a metro or REM leg that isn't actually running.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="Filter by neighborhood, mode, or route name…">
+    <select class="filter" id="filter-status">
+      <option value="">All statuses</option>
+      <option value="pending">Not tested</option>
+      <option value="match">Match</option>
+      <option value="similar">Similar</option>
+      <option value="mismatch">Potential time mismatch</option>
+      <option value="slower">Slower routing</option>
+      <option value="faster">Faster Route</option>
+      <option value="investigate">Investigate</option>
+    </select>
+    <div class="leg-filter" id="leg-filter" role="group" aria-label="Filter by leg">
+      <span class="leg-filter-label">Filter by leg</span>
+      <button type="button" class="leg-filter-btn" data-leg="bixi">BIXI</button>
+      <button type="button" class="leg-filter-btn" data-leg="bus">Bus</button>
+      <button type="button" class="leg-filter-btn" data-leg="stm">STM</button>
+      <button type="button" class="leg-filter-btn" data-leg="rem">REM</button>
+      <button type="button" class="leg-filter-btn" data-leg="walking">Walking</button>
+    </div>
+    <button class="btn" id="btn-expand">Expand all</button>
+    <button class="btn" id="btn-collapse">Collapse all</button>
+    <button class="btn" id="btn-import">Import script results</button>
+    <input type="file" id="import-file" accept="application/json,.json" class="hidden">
+    <button class="btn primary" id="btn-export">Export CSV</button>
+    <button class="btn danger" id="btn-reset">Reset all</button>
+  </div>
+
+  <div id="route-list"></div>
+
+  <footer>
+    <span id="last-saved"></span>
+  </footer>
+  </div>
+
+  <div id="tab-panel-modes" class="hidden">
+    <div class="placard" style="margin-bottom:1.5rem;">
+      <h2>About this tab</h2>
+      <p style="margin:0 0 0.6rem;font-size:0.87rem;color:var(--ink-soft);">Each route can restrict
+      which travel modes it's allowed to use. Routes #1–3 are simple baseline checks that always allow
+      every mode with no walking-time limit. From route #4 onward, buses, metro, and REM stay available
+      on every route, but BIXI bike-share is turned off for some routes, and others are limited to buses
+      only or metro/REM only. Most of these routes also carry a maximum walking time per leg (5, 10, 15,
+      or 20 minutes, or no limit at all).</p>
+      <p style="margin:0;font-size:0.87rem;color:var(--ink-soft);">This table shows what each route is
+      <b>allowed</b> to use — not what it actually picked. The app still chooses freely among the
+      allowed options, so a route that allows every mode can still legitimately come back walk-only or
+      bike-only if that's genuinely the fastest way to get there. Check the "Modes used" chips on the
+      Route list tab to see the actual outcome.</p>
+    </div>
+    <div id="modes-summary" class="stats" style="margin-bottom:1.25rem;"></div>
+    <div class="modes-table-wrap">
+      <table class="legs-table" id="modes-table">
+        <thead><tr><th>#</th><th>Route</th><th>Tags</th><th>Bus</th><th>Metro</th><th>REM</th><th>BIXI</th><th>Max walk/leg</th></tr></thead>
+        <tbody id="modes-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROUTES = [
+  {id:1, from:"1000 rue de la Gauchetière O", fromArea:"Downtown", to:"Centre Bell", toArea:"Downtown", cat:"trivial", tags:["sanity","walk"], focus:"A simple baseline check: two points about 600m apart in the same neighborhood. Expect a walk-only route with a travel time close to Google's estimate.", defaultTime:"10:00", dayType:"any", fromAddr:"1000 Rue de La Gauchetière O, Montréal, QC H3A 4W5", toAddr:"1288 Avenue des Canadiens-de-Montréal, Montréal, QC H3B 0G6"},
+  {id:2, from:"Peel Basin (Griffintown)", fromArea:"Griffintown", to:"Marché Atwater", toArea:"Saint-Henri", cat:"short", tags:["bixi","walk"], focus:"A short trip between two adjacent neighborhoods — good for comparing walking against a BIXI bike ride.", defaultTime:"10:00", dayType:"any", fromAddr:"1195 Rue Smith, Montréal, QC (near Peel Basin, Griffintown)", toAddr:"2650 Avenue Lionel-Groulx, Montréal, QC H3J 2H7"},
+  {id:3, from:"Guy & Sainte-Catherine", fromArea:"Downtown", to:"Marché Bonsecours", toArea:"Old Montreal", cat:"short", tags:["metro","bixi"], focus:"A downtown-to-Old-Montreal trip during weekday rush hour, where the best route mixes a one-stop metro ride with a BIXI bike leg.", defaultTime:"17:30", dayType:"weekday", fromAddr:"1455 Rue Guy, Montréal, QC H3G 1N2", toAddr:"350 Rue Saint-Paul E, Montréal, QC H2Y 1G6"},
+  {id:4, from:"Parc La Fontaine", fromArea:"Plateau-Mont-Royal", to:"Rue Bernard & Ave du Parc", toArea:"Mile End", cat:"short", tags:["bixi","bus"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:null}, focus:"A BIXI-to-bus combination between two dense, bike-friendly neighborhoods during weekday rush hour, when the bus beats a pure bike ride for the last stretch.", defaultTime:"17:30", dayType:"weekday", fromAddr:"3393 Avenue du Parc-La Fontaine, Montréal, QC H2L 0C7 (near Parc La Fontaine)", toAddr:"5403 Avenue du Parc, Montréal, QC (Rue Bernard & Ave du Parc)"},
+  {id:5, from:"Beaubien & Saint-Denis", fromArea:"Rosemont–La Petite-Patrie", to:"Laurier metro", toArea:"Plateau-Mont-Royal", cat:"short", tags:["bus","metro"], allowedModes:{bus:true, metro:true, rem:true, bixi:false, max_walk_minutes:10}, focus:"A bus-to-metro feeder trip, connecting a neighborhood a bus ride away from the Orange metro line. BIXI is disabled for this test, and walking is capped at 10 minutes per leg.", defaultTime:"14:52", dayType:"any", fromAddr:"6587 Rue De La Roche, Montréal, QC (near Beaubien & Saint-Denis)", toAddr:"755 Boulevard Saint-Joseph E, Montréal, QC H2J 1N7"},
+  {id:6, from:"Côte-des-Neiges & Queen-Mary", fromArea:"Côte-des-Neiges", to:"Jean-Talon metro", toArea:"Villeray", cat:"medium", tags:["metro","baseline"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:15}, focus:"A direct ride on the Blue metro line with no transfer, used as a timing reference point.", defaultTime:"10:00", dayType:"any", fromAddr:"3791 Chemin Queen Mary, Montréal, QC H3V 1A8 (near Côte-des-Neiges & Queen-Mary)", toAddr:"205 Rue Jean-Talon E, Montréal, QC H2R 1S1"},
+  {id:7, from:"Monkland Village", fromArea:"NDG", to:"Cavendish Mall", toArea:"Côte-Saint-Luc", cat:"short", tags:["bus","bixi"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:15}, focus:"A BIXI-to-bus trip through lower-density residential neighborhoods, combining a bike leg with Bus 66.", defaultTime:"10:00", dayType:"any", fromAddr:"2144 Avenue de Clifton, Montréal, QC H4A 2A1", toAddr:"5800 Boulevard Cavendish, Côte Saint-Luc, QC H4W 2T5"},
+  {id:8, from:"Verdun Beach (Plage de l'Horloge)", fromArea:"Verdun", to:"Marché Atwater", toArea:"Saint-Henri", cat:"medium", tags:["bixi"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:5}, focus:"A BIXI ride along the Lachine Canal bike path — tests bike routing on a dedicated cycling corridor.", defaultTime:"10:00", dayType:"any", fromAddr:"427 Rue Manning, Montréal, QC H4H 2B3", toAddr:"2650 Avenue Lionel-Groulx, Montréal, QC H3J 2H7"},
+  {id:9, from:"Angrignon metro / Park", fromArea:"LaSalle", to:"Marché Atwater", toArea:"Saint-Henri", cat:"medium", tags:["metro"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:15}, focus:"A direct Green-line metro ride from the western terminus into Saint-Henri.", defaultTime:"10:00", dayType:"any", fromAddr:"3500 Boulevard des Trinitaires, Montréal, QC H8N 0G2", toAddr:"2650 Avenue Lionel-Groulx, Montréal, QC H3J 2H7"},
+  {id:10, from:"Verdun metro", fromArea:"Verdun", to:"Brossard REM terminus", toArea:"Brossard (South Shore)", cat:"medium", tags:["rem","bridge","bixi"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:10}, focus:"A trip that bikes to the Île-des-Sœurs REM station, then rides the REM across the bridge to the South Shore terminus.", defaultTime:"10:00", dayType:"any", fromAddr:"265 1re Avenue, Montréal, QC H4G 1X1", toAddr:"5850 Boulevard de Rome, Brossard, QC (Station Brossard REM terminus)"},
+  {id:11, from:"Île-des-Sœurs REM station", fromArea:"Nun's Island", to:"Gare Centrale", toArea:"Downtown", cat:"medium", tags:["rem"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:null}, focus:"A full REM ride into the downtown terminus.", defaultTime:"10:00", dayType:"any", fromAddr:"16 Place du Commerce, Montréal, QC H3E 2A5 (near Station Île-des-Sœurs REM)", toAddr:"895 Rue de La Gauchetière O, Montréal, QC H5A 1L3 (Gare Centrale)"},
+  {id:12, from:"Brossard REM terminus", fromArea:"Brossard (South Shore)", to:"McGill University", toArea:"Downtown", cat:"long", tags:["rem","south-shore"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:15}, focus:"A cross-river REM commute, testing South Shore coverage at the edge of the service area.", defaultTime:"10:00", dayType:"any", fromAddr:"5850 Boulevard de Rome, Brossard, QC (Station Brossard REM terminus)", toAddr:"845 Rue Sherbrooke O, Montréal, QC H3A 0G4"},
+  {id:13, from:"Longueuil–Université-de-Sherbrooke metro", fromArea:"Longueuil (South Shore)", to:"Berri-UQAM metro", toArea:"Downtown/Plateau", cat:"medium", tags:["metro","south-shore"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:20}, focus:"A Yellow-line ride into the Orange/Green interchange at Berri-UQAM, where the connecting platforms are close together.", defaultTime:"10:00", dayType:"any", fromAddr:"101 Place Charles-Le Moyne, Montréal, QC J4K 2T3", toAddr:"505 Rue Sainte-Catherine E, Montréal, QC (Station Berri-UQAM)"},
+  {id:14, from:"Côte-Vertu metro", fromArea:"Saint-Laurent", to:"Honoré-Beaugrand metro", toArea:"Mercier", cat:"cross-island", tags:["metro","baseline"], allowedModes:{bus:false, metro:true, rem:false, bixi:true, max_walk_minutes:null}, focus:"A cross-island, metro-only route with multiple transfers, used as a timing reference.", defaultTime:"10:00", dayType:"any", fromAddr:"1205 Rue Cardinal, Montréal, QC H4L 1R1", toAddr:"8101 Rue Gustave Bleau, Montréal, QC H1L 1H4"},
+  {id:15, from:"Jean-Talon Market", fromArea:"Villeray", to:"Berri-UQAM metro", toArea:"Downtown/Plateau", cat:"short", tags:["metro"], allowedModes:{bus:false, metro:true, rem:true, bixi:true, max_walk_minutes:20}, focus:"A metro-only trip (buses disabled) down the main Orange-line trunk, run during the day while the metro is running.", defaultTime:"14:20", dayType:"any", fromAddr:"7070 Avenue Henri-Julien, Montréal, QC H2S 1L6", toAddr:"505 Rue Sainte-Catherine E, Montréal, QC (Station Berri-UQAM)"},
+  {id:16, from:"Beaubien & Saint-Hubert", fromArea:"Rosemont–La Petite-Patrie", to:"Chinatown (rue de la Gauchetière)", toArea:"Chinatown", cat:"medium", tags:["metro","bixi"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:5}, focus:"A BIXI-to-metro trip into downtown: biking to Rosemont metro station, then riding the Orange line into Place-d'Armes.", defaultTime:"10:00", dayType:"any", fromAddr:"6561 Rue Chambord, Montréal, QC H2S 2B8", toAddr:"979 Rue Côté, Montréal, QC (Chinatown)"},
+  {id:17, from:"Marché Central", fromArea:"Ahuntsic-Cartierville", to:"Parc Jarry", toArea:"Villeray", cat:"medium", tags:["bus"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:10}, focus:"North-borough bus corridor, moderate density.", defaultTime:"10:00", dayType:"any", fromAddr:"90 Place de la Côte-Vertu, Montréal, QC H4N 1C0", toAddr:"7735 Boulevard Saint-Laurent, Montréal, QC H2R 1X1 (near Parc Jarry)"},
+  {id:18, from:"Henri-Bourassa metro", fromArea:"Ahuntsic-Cartierville", to:"Henri-Bourassa E & Léger", toArea:"Montréal-Nord", cat:"medium", tags:["bus","sparse"], allowedModes:{bus:true, metro:false, rem:false, bixi:true, max_walk_minutes:10}, focus:"Bus-heavy north-end trip into a borough with sparse metro coverage.", defaultTime:"10:00", dayType:"any", fromAddr:"10738 Rue Berri, Montréal, QC H3L 2H3", toAddr:"10388 Avenue Pelletier, Montréal, QC H1H 4A8"},
+  {id:19, from:"Langelier & Jean-Talon E", fromArea:"Saint-Léonard", to:"Peel metro", toArea:"Downtown", cat:"long", tags:["bus","metro"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:20}, focus:"A long commute from a borough with limited transit options, connecting a bus to the metro trunk line.", defaultTime:"10:00", dayType:"any", fromAddr:"5956 Boulevard Métropolitain - Voie de desserte S, Montréal, QC H1P 1X3", toAddr:"1200 Boulevard De Maisonneuve O, Montréal, QC H3A 1N6"},
+  {id:21, from:"RDP Library (boul. Perras)", fromArea:"Rivière-des-Prairies", to:"Anjou metro area", toArea:"Anjou", cat:"medium", tags:["bus","sparse"], allowedModes:{bus:true, metro:true, rem:true, bixi:false, max_walk_minutes:20}, focus:"Far east-end periphery — tests behavior in the sparsest-transit part of the coverage area.", defaultTime:"10:00", dayType:"any", fromAddr:"12225 Rue Sherbrooke E, Montréal, QC H1B 1C8", toAddr:"5305 Rue Des Groseilliers, Montréal, QC (near Anjou metro area)"},
+  {id:22, from:"Parc Outremont", fromArea:"Outremont", to:"Rue Bernard & Ave du Parc", toArea:"Mile End", cat:"short", tags:["walk","bixi"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:20}, focus:"Short walk/BIXI hop between adjacent affluent boroughs.", defaultTime:"10:00", dayType:"any", fromAddr:"1320 Avenue Bernard, Montréal, QC H2V 1W1", toAddr:"5403 Avenue du Parc, Montréal, QC (Rue Bernard & Ave du Parc)"},
+  {id:23, from:"Université de Montréal", fromArea:"Côte-des-Neiges/Outremont", to:"Jean-Talon Market", toArea:"Villeray", cat:"medium", tags:["walk","bus"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:15}, focus:"Hilltop campus start — Mount Royal terrain affects walking/biking time estimates.", defaultTime:"10:00", dayType:"any", fromAddr:"2700 Chemin de l'Est, Montréal, QC H3T 1J4", toAddr:"7070 Avenue Henri-Julien, Montréal, QC H2S 1L6"},
+  {id:24, from:"Beaver Lake, Parc du Mont-Royal", fromArea:"Plateau/Outremont", to:"Vieux-Port de Montréal", toArea:"Old Montreal", cat:"medium", tags:["ebike","hilly"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:20}, focus:"A hilly route that favors an electric BIXI bike — useful for comparing against a regular bike ride.", defaultTime:"10:00", dayType:"any", fromAddr:"1515 Chemin Remembrance, Montréal, QC (near Beaver Lake, Parc du Mont-Royal)", toAddr:"443 Rue Saint-Vincent, Montréal, QC H2Y 3B3"},
+  {id:25, from:"Pointe-Claire Village", fromArea:"Pointe-Claire (West Island)", to:"Fairview Pointe-Claire", toArea:"Pointe-Claire (West Island)", cat:"short", tags:["sparse","edge"], allowedModes:{bus:true, metro:true, rem:true, bixi:false, max_walk_minutes:15}, focus:"A short local trip in a lower-density suburb, near the edge of the coverage area.", defaultTime:"10:00", dayType:"any", fromAddr:"192 Avenue Duke-of-Kent, Pointe-Claire, QC (Pointe-Claire Village)", toAddr:"120 Avenue Alston, Montréal, QC H9R 0G1"},
+  {id:26, from:"Kirkland Recreation Centre", fromArea:"Kirkland (West Island)", to:"Lionel-Groulx metro", toArea:"Saint-Henri", cat:"long", tags:["bus","edge"], allowedModes:{bus:true, metro:true, rem:true, bixi:false, max_walk_minutes:15}, focus:"A long commute from the far West Island, connecting a bus to the metro trunk line, run on a weekday afternoon when local bus service is more frequent.", defaultTime:"15:00", dayType:"weekday", fromAddr:"34 Rue Vincent-Blouin, Montréal, QC H9J 2Y3", toAddr:"2744 Rue Workman, Montréal, QC H4C 1N9"},
+  {id:27, from:"Pierrefonds–Roxboro station", fromArea:"Pierrefonds-Roxboro", to:"Gare Centrale", toArea:"Downtown", cat:"long", tags:["bus","metro","edge"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:5}, focus:"A West Island trip near a commuter rail line, likely combining a bus with the metro.", defaultTime:"10:00", dayType:"any", fromAddr:"13899 Boulevard Gouin O, Montréal, QC H8Z 1X7", toAddr:"895 Rue de La Gauchetière O, Montréal, QC H5A 1L3 (Gare Centrale)"},
+  {id:28, from:"Place Jacques-Cartier", fromArea:"Old Montreal", to:"rue de la Gauchetière (Chinatown)", toArea:"Chinatown", cat:"trivial", tags:["walk","sanity"], allowedModes:{bus:true, metro:true, rem:true, bixi:false, max_walk_minutes:null}, focus:"Short tourist-corridor walk through the dense downtown grid.", defaultTime:"10:00", dayType:"any", fromAddr:"275 Rue Notre-Dame E, Montréal, QC H2Y 3B3", toAddr:"979 Rue Côté, Montréal, QC (Chinatown)"},
+  {id:29, from:"Chinatown (rue de la Gauchetière)", fromArea:"Chinatown", to:"Little Italy (Jean-Talon & St-Laurent)", toArea:"Villeray/Rosemont", cat:"medium", tags:["bus","metro"], allowedModes:{bus:true, metro:true, rem:true, bixi:false, max_walk_minutes:15}, focus:"North-south cross-town trip, mixed bus/metro.", defaultTime:"10:00", dayType:"any", fromAddr:"979 Rue Côté, Montréal, QC (Chinatown)", toAddr:"7070 Avenue Henri-Julien, Montréal, QC H2S 1L6"},
+  {id:30, from:"Complexe Desjardins", fromArea:"Downtown", to:"Galeries d'Anjou", toArea:"Anjou", cat:"long", tags:["bus","metro"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:15}, focus:"Long cross-town errand-style trip, downtown to the east end.", defaultTime:"10:00", dayType:"any", fromAddr:"150 Rue Sainte-Catherine O, Montréal, QC H2X 3Y2", toAddr:"7755 Place Pocé, Montréal, QC H1K 1C1"},
+  {id:31, from:"Concordia SGW (1455 de Maisonneuve O)", fromArea:"Downtown", to:"Concordia Loyola (7141 Sherbrooke O)", toArea:"NDG", cat:"medium", tags:["bus","known-corridor"], allowedModes:{bus:true, metro:false, rem:false, bixi:false, max_walk_minutes:15}, focus:"A trip along Concordia University's real shuttle-bus corridor, run overnight while the metro is closed, so Concordia's own published shuttle time can serve as an extra reference point.", defaultTime:"03:35", dayType:"any", fromAddr:"1455 Boulevard De Maisonneuve O, Montréal, QC H3G 1M8", toAddr:"7141 Rue Sherbrooke O, Montréal, QC H4B 1R6"},
+  {id:32, from:"Saint-Laurent & Mont-Royal", fromArea:"Plateau-Mont-Royal", to:"Jean-Talon Market", toArea:"Villeray", cat:"short", tags:["night","frequency","bus"], allowedModes:{bus:true, metro:false, rem:false, bixi:true, max_walk_minutes:15}, focus:"A weekend overnight trip (2:30 AM) while the metro is closed, checking that the app correctly falls back to a night bus (Bus 361 up Saint-Denis).", defaultTime:"02:30", dayType:"weekend", fromAddr:"4279 Rue Saint-Denis, Montréal, QC H2J 2K9", toAddr:"7070 Avenue Henri-Julien, Montréal, QC H2S 1L6"},
+  {id:33, from:"Monkland Village", fromArea:"NDG", to:"Peel metro", toArea:"Downtown", cat:"medium", tags:["rush-hour"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:15}, focus:"Run at 8:00 AM weekday — pair with #34 to compare rush-hour behavior.", defaultTime:"08:00", dayType:"weekday", fromAddr:"2144 Avenue de Clifton, Montréal, QC H4A 2A1", toAddr:"1200 Boulevard De Maisonneuve O, Montréal, QC H3A 1N6"},
+  {id:34, from:"Monkland Village", fromArea:"NDG", to:"Peel metro", toArea:"Downtown", cat:"medium", tags:["off-peak"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:5}, focus:"Same pair as #33, run at 2:00 PM weekday — isolates schedule/frequency sensitivity from the route choice itself.", defaultTime:"14:00", dayType:"weekday", fromAddr:"2144 Avenue de Clifton, Montréal, QC H4A 2A1", toAddr:"1200 Boulevard De Maisonneuve O, Montréal, QC H3A 1N6"},
+  {id:35, from:"Downtown (Peel / Ste-Catherine)", fromArea:"Downtown", to:"Casino de Montréal", toArea:"Parc Jean-Drapeau", cat:"long", tags:["bus","baseline","bridge"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:20}, focus:"A bus-heavy, island-hopping trip across a bridge, used as a timing reference.", defaultTime:"10:00", dayType:"any", fromAddr:"892 Rue Sainte-Catherine O, Montréal, QC H3B 1E2 (Peel & Ste-Catherine)", toAddr:"1 Avenue du Casino, Montréal, QC H3C 4W7 (Casino de Montréal)"},
+  {id:36, from:"Saint-Denis & Mont-Royal", fromArea:"Plateau-Mont-Royal", to:"Wellington & de l'Église", toArea:"Verdun", cat:"medium", tags:["late-night-closure","bus"], allowedModes:{bus:true, metro:true, rem:true, bixi:false, max_walk_minutes:15}, focus:"A weekday overnight trip (2:30 AM) while the metro and REM are closed, checking that the app correctly falls back to the night bus network instead of suggesting a metro leg that isn't running.", defaultTime:"02:30", dayType:"weekday", fromAddr:"4407 Rue Rivard, Montréal, QC H2J 2A2", toAddr:"377 1re Avenue, Montréal, QC H4G 1X1"},
+  {id:37, from:"Peel & Ste-Catherine", fromArea:"Downtown", to:"Henri-Bourassa metro", toArea:"Ahuntsic-Cartierville", cat:"medium", tags:["late-night-closure","bus"], allowedModes:{bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:15}, focus:"Another overnight closure check (3:00 AM weekday), a longer haul that surfaces the night bus fallback (Bus 363).", defaultTime:"03:00", dayType:"weekday", fromAddr:"892 Rue Sainte-Catherine O, Montréal, QC H3B 1E2 (Peel & Ste-Catherine)", toAddr:"10738 Rue Berri, Montréal, QC H3L 2H3"}
+];
+
+// Baked-in snapshot from testing/validate_routes.py --with-google, so the deployed dashboard shows real results on first load instead of an all-"Not tested" page for anyone who hasn't run "Import script results" in their own browser. Only seeds state on a truly empty localStorage (see the bottom of this script) -- never overwrites local edits. Refresh by re-running the harness and regenerating this array; BIXI figures still need the manual Google Maps check described in the placard above, same as a normal import.
+const BAKED_RESULTS = [{"appTime":5.4,"appTransfers":0,"appModes":["Walk"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Destination","departure":"10:54","arrival":"10:59","elapsedMin":5.4,"distance":"397 m"}],"appDistance":"397 m","error":null,"elapsedSec":5.17,"id":1,"departureTime":"2026-08-15T10:54","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4984%2C-73.5667&destination=45.4961%2C-73.5693&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4984%2C-73.5667&destination=45.4961%2C-73.5693&travelmode=transit","gTransitTime":6.8,"gTransitTransfers":0,"gTransitModes":["Walk"],"gTransitDistance":"413 m","gTransitLegs":[]},{"appTime":15.0,"appTransfers":0,"appModes":["BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Bassin Peel (Smith / de la Commune)","departure":"08:21","arrival":"08:23","elapsedMin":2.1,"distance":"153 m"},{"mode":"bike","label":"BIXI","from":"Bassin Peel (Smith / de la Commune)","to":"M\u00e9tro Lionel-Groulx (St-Jacques / Atwater)","departure":"08:23","arrival":"08:34","elapsedMin":11.5,"distance":"2.5 km"},{"mode":"walk","label":"Walk","from":"M\u00e9tro Lionel-Groulx (St-Jacques / Atwater)","to":"Destination","departure":"08:34","arrival":"08:36","elapsedMin":1.4,"distance":"104 m"}],"appDistance":"2.8 km","error":null,"elapsedSec":4.67,"id":2,"departureTime":"2026-08-15T08:21","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4919%2C-73.556&destination=45.4832%2C-73.5788&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4919%2C-73.556&destination=45.4832%2C-73.5788&travelmode=transit","gTransitTime":27.4,"gTransitTransfers":0,"gTransitModes":["Walk","Bus"],"gTransitDistance":"2.9 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Wellington / Peel","departure":"08:21","arrival":"08:25","elapsedMin":4.0,"distance":"280 m"},{"mode":"wait","label":"Wait for Bus 35","from":"Wellington / Peel","to":"Wellington / Peel","departure":"08:25","arrival":"08:34","elapsedMin":9.4,"distance":"0 m"},{"mode":"transit","label":"Bus 35","from":"Wellington / Peel","to":"Notre-Dame / Atwater","departure":"08:34","arrival":"08:45","elapsedMin":10.5,"distance":"2.4 km"},{"mode":"walk","label":"Walk","from":"Notre-Dame / Atwater","to":"Destination","departure":"08:45","arrival":"08:48","elapsedMin":3.4,"distance":"251 m"}]},{"appTime":19.1,"appTransfers":1,"appModes":["Metro","BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Station Guy-Concordia","departure":"17:30","arrival":"17:31","elapsedMin":1.8,"distance":"131 m"},{"mode":"wait","label":"Wait for Metro line 1","from":"Station Guy-Concordia","to":"Station Guy-Concordia","departure":"17:31","arrival":"17:35","elapsedMin":3.2,"distance":"0 m"},{"mode":"transit","label":"Metro line 1","from":"Station Guy-Concordia","to":"Station Saint-Laurent","departure":"17:35","arrival":"17:40","elapsedMin":5.0,"distance":"2.1 km"},{"mode":"walk","label":"Walk","from":"Station Saint-Laurent","to":"St-Dominique / de Maisonneuve","departure":"17:40","arrival":"17:41","elapsedMin":1.8,"distance":"19 m"},{"mode":"bike","label":"BIXI","from":"St-Dominique / de Maisonneuve","to":"du Champ-de-Mars / Gosford","departure":"17:41","arrival":"17:47","elapsedMin":6.0,"distance":"1.2 km"},{"mode":"walk","label":"Walk","from":"du Champ-de-Mars / Gosford","to":"Destination","departure":"17:47","arrival":"17:49","elapsedMin":1.3,"distance":"99 m"}],"appDistance":"3.5 km","error":null,"elapsedSec":5.32,"id":3,"departureTime":"2026-08-17T17:30","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4949%2C-73.5789&destination=45.5093%2C-73.5534&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4949%2C-73.5789&destination=45.5093%2C-73.5534&travelmode=transit","gTransitTime":28.6,"gTransitTransfers":1,"gTransitModes":["Walk","Metro"],"gTransitDistance":"4.3 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Guy-Concordia","departure":"17:30","arrival":"17:33","elapsedMin":3.7,"distance":"340 m"},{"mode":"wait","label":"Wait for Metro 1","from":"Guy-Concordia","to":"Guy-Concordia","departure":"17:33","arrival":"17:35","elapsedMin":1.3,"distance":"0 m"},{"mode":"transit","label":"Metro 1","from":"Guy-Concordia","to":"Berri-UQAM","departure":"17:35","arrival":"17:41","elapsedMin":6.0,"distance":"2.8 km"},{"mode":"walk","label":"Walk","from":"Berri-UQAM","to":"Berri-UQAM","departure":"17:41","arrival":"17:42","elapsedMin":1.3,"distance":"0 m"},{"mode":"wait","label":"Wait for Metro 2","from":"Berri-UQAM","to":"Berri-UQAM","departure":"17:42","arrival":"17:48","elapsedMin":5.7,"distance":"0 m"},{"mode":"transit","label":"Metro 2","from":"Berri-UQAM","to":"Champ-de-Mars","departure":"17:48","arrival":"17:50","elapsedMin":2.0,"distance":"691 m"},{"mode":"walk","label":"Walk","from":"Champ-de-Mars","to":"Destination","departure":"17:50","arrival":"17:58","elapsedMin":8.6,"distance":"535 m"}]},{"appTime":20.7,"appTransfers":1,"appModes":["BIXI","Bus"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Rachel / de Br\u00e9beuf","departure":"17:30","arrival":"17:33","elapsedMin":3.7,"distance":"270 m"},{"mode":"bike","label":"BIXI","from":"Rachel / de Br\u00e9beuf","to":"du Parc / Villeneuve","departure":"17:33","arrival":"17:44","elapsedMin":11.3,"distance":"2.4 km"},{"mode":"transit","label":"Bus 80","from":"du Parc / Villeneuve","to":"Destination","departure":"17:44","arrival":"17:50","elapsedMin":5.7,"distance":"956 m"}],"appDistance":"3.7 km","error":null,"elapsedSec":5.9,"id":4,"departureTime":"2026-08-17T17:30","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5259%2C-73.5701&destination=45.5219%2C-73.6013&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5259%2C-73.5701&destination=45.5219%2C-73.6013&travelmode=transit","gTransitTime":44.3,"gTransitTransfers":1,"gTransitModes":["Walk","Bus"],"gTransitDistance":"3.7 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"De La Roche / Rachel","departure":"17:30","arrival":"17:35","elapsedMin":5.2,"distance":"360 m"},{"mode":"wait","label":"Wait for Bus 11","from":"De La Roche / Rachel","to":"De La Roche / Rachel","departure":"17:35","arrival":"17:47","elapsedMin":11.8,"distance":"0 m"},{"mode":"transit","label":"Bus 11","from":"De La Roche / Rachel","to":"Du Mont-Royal / Du Parc","departure":"17:47","arrival":"18:02","elapsedMin":15.0,"distance":"2.0 km"},{"mode":"walk","label":"Walk","from":"Du Mont-Royal / Du Parc","to":"Du Parc / Du Mont-Royal","departure":"18:02","arrival":"18:03","elapsedMin":1.1,"distance":"68 m"},{"mode":"wait","label":"Wait for Bus 80","from":"Du Parc / Du Mont-Royal","to":"Du Parc / Du Mont-Royal","departure":"18:03","arrival":"18:07","elapsedMin":3.9,"distance":"0 m"},{"mode":"transit","label":"Bus 80","from":"Du Parc / Du Mont-Royal","to":"Du Parc / Saint-Viateur","departure":"18:07","arrival":"18:13","elapsedMin":6.5,"distance":"1.2 km"},{"mode":"walk","label":"Walk","from":"Du Parc / Saint-Viateur","to":"Destination","departure":"18:13","arrival":"18:14","elapsedMin":0.8,"distance":"65 m"}]},{"appTime":26.5,"appTransfers":1,"appModes":["Walk","Bus","Metro"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Station Beaubien (De Chateaubriand / Beaubien)","departure":"14:52","arrival":"15:00","elapsedMin":8.4,"distance":"616 m"},{"mode":"wait","label":"Wait for Bus 56","from":"Station Beaubien (De Chateaubriand / Beaubien)","to":"Station Beaubien (De Chateaubriand / Beaubien)","departure":"15:00","arrival":"15:05","elapsedMin":4.6,"distance":"0 m"},{"mode":"transit","label":"Bus 56","from":"Station Beaubien (De Chateaubriand / Beaubien)","to":"Station Rosemont (De Chateaubriand / Rosemont)","departure":"15:05","arrival":"15:09","elapsedMin":4.4,"distance":"595 m"},{"mode":"walk","label":"Walk","from":"Station Rosemont (De Chateaubriand / Rosemont)","to":"Station Rosemont","departure":"15:09","arrival":"15:11","elapsedMin":1.7,"distance":"123 m"},{"mode":"wait","label":"Wait for Metro line 2","from":"Station Rosemont","to":"Station Rosemont","departure":"15:11","arrival":"15:14","elapsedMin":3.0,"distance":"0 m"},{"mode":"transit","label":"Metro line 2","from":"Station Rosemont","to":"Station Laurier","departure":"15:14","arrival":"15:16","elapsedMin":2.0,"distance":"975 m"},{"mode":"walk","label":"Walk","from":"Station Laurier","to":"Destination","departure":"15:16","arrival":"15:18","elapsedMin":2.5,"distance":"71 m"}],"appDistance":"2.4 km","error":null,"elapsedSec":3.0,"id":5,"departureTime":"2026-08-15T14:52","gBixiLink":null,"gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5395%2C-73.6021&destination=45.5279%2C-73.5865&travelmode=transit","gTransitTime":21.3,"gTransitTransfers":0,"gTransitModes":["Walk","Metro"],"gTransitDistance":"2.5 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Beaubien","departure":"14:52","arrival":"15:03","elapsedMin":11.2,"distance":"687 m"},{"mode":"wait","label":"Wait for Metro 2","from":"Beaubien","to":"Beaubien","departure":"15:03","arrival":"15:07","elapsedMin":3.8,"distance":"0 m"},{"mode":"transit","label":"Metro 2","from":"Beaubien","to":"Laurier","departure":"15:07","arrival":"15:10","elapsedMin":3.0,"distance":"1.6 km"},{"mode":"walk","label":"Walk","from":"Laurier","to":"Destination","departure":"15:10","arrival":"15:13","elapsedMin":3.3,"distance":"151 m"}]},{"appTime":31.2,"appTransfers":0,"appModes":["Walk","Metro"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Station C\u00f4te-des-Neiges","departure":"05:15","arrival":"05:20","elapsedMin":6.0,"distance":"439 m"},{"mode":"wait","label":"Wait for Metro line 5","from":"Station C\u00f4te-des-Neiges","to":"Station C\u00f4te-des-Neiges","departure":"05:20","arrival":"05:31","elapsedMin":10.0,"distance":"0 m"},{"mode":"transit","label":"Metro line 5","from":"Station C\u00f4te-des-Neiges","to":"Station Jean-Talon","departure":"05:31","arrival":"05:40","elapsedMin":9.0,"distance":"5.6 km"},{"mode":"walk","label":"Walk","from":"Station Jean-Talon","to":"Destination","departure":"05:40","arrival":"05:46","elapsedMin":6.2,"distance":"344 m"}],"appDistance":"6.4 km","error":null,"elapsedSec":5.76,"id":6,"departureTime":"2026-08-15T05:15","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4939%2C-73.6229&destination=45.5411%2C-73.6136&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4939%2C-73.6229&destination=45.5411%2C-73.6136&travelmode=transit","gTransitTime":29.8,"gTransitTransfers":0,"gTransitModes":["Walk","Metro"],"gTransitDistance":"6.4 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"C\u00f4te-des-Neiges","departure":"05:15","arrival":"05:21","elapsedMin":6.1,"distance":"362 m"},{"mode":"wait","label":"Wait for Metro 5","from":"C\u00f4te-des-Neiges","to":"C\u00f4te-des-Neiges","departure":"05:21","arrival":"05:31","elapsedMin":9.9,"distance":"0 m"},{"mode":"transit","label":"Metro 5","from":"C\u00f4te-des-Neiges","to":"Jean-Talon","departure":"05:31","arrival":"05:40","elapsedMin":9.0,"distance":"5.8 km"},{"mode":"walk","label":"Walk","from":"Jean-Talon","to":"Destination","departure":"05:40","arrival":"05:44","elapsedMin":4.8,"distance":"283 m"}]},{"appTime":30.6,"appTransfers":1,"appModes":["Walk","Bus","BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Upper-Lachine / de Clifton","departure":"19:30","arrival":"19:32","elapsedMin":2.8,"distance":"208 m"},{"mode":"wait","label":"Wait for Bus 90","from":"Upper-Lachine / de Clifton","to":"Upper-Lachine / de Clifton","departure":"19:32","arrival":"19:34","elapsedMin":2.1,"distance":"0 m"},{"mode":"transit","label":"Bus 90","from":"Upper-Lachine / de Clifton","to":"Oxford / Upper-Lachine","departure":"19:34","arrival":"19:36","elapsedMin":1.6,"distance":"404 m"},{"mode":"bike","label":"BIXI","from":"Oxford / Upper-Lachine","to":"Hingston / Somerled","departure":"19:36","arrival":"19:47","elapsedMin":10.9,"distance":"2.4 km"},{"mode":"walk","label":"Walk","from":"Hingston / Somerled","to":"Destination","departure":"19:47","arrival":"20:00","elapsedMin":13.2,"distance":"973 m"}],"appDistance":"4.0 km","error":null,"elapsedSec":10.45,"id":7,"departureTime":"2026-08-14T19:30","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4675%2C-73.6151&destination=45.478%2C-73.6438&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4675%2C-73.6151&destination=45.478%2C-73.6438&travelmode=transit","gTransitTime":47.7,"gTransitTransfers":2,"gTransitModes":["Walk","Bus","Metro"],"gTransitDistance":"7.3 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Upper-Lachine / De Clifton","departure":"19:30","arrival":"19:32","elapsedMin":2.5,"distance":"186 m"},{"mode":"wait","label":"Wait for Bus 90","from":"Upper-Lachine / De Clifton","to":"Upper-Lachine / De Clifton","departure":"19:32","arrival":"19:34","elapsedMin":2.4,"distance":"0 m"},{"mode":"transit","label":"Bus 90","from":"Upper-Lachine / De Clifton","to":"Station Vend\u00f4me","departure":"19:34","arrival":"19:40","elapsedMin":5.1,"distance":"1.2 km"},{"mode":"walk","label":"Walk","from":"Station Vend\u00f4me","to":"Vend\u00f4me","departure":"19:40","arrival":"19:41","elapsedMin":2.0,"distance":"46 m"},{"mode":"wait","label":"Wait for Metro 2","from":"Vend\u00f4me","to":"Vend\u00f4me","departure":"19:41","arrival":"19:46","elapsedMin":4.0,"distance":"0 m"},{"mode":"transit","label":"Metro 2","from":"Vend\u00f4me","to":"Plamondon","departure":"19:46","arrival":"19:53","elapsedMin":7.0,"distance":"3.6 km"},{"mode":"walk","label":"Walk","from":"Plamondon","to":"Station Plamondon","departure":"19:53","arrival":"19:54","elapsedMin":1.6,"distance":"34 m"},{"mode":"wait","label":"Wait for Bus 161","from":"Station Plamondon","to":"Station Plamondon","departure":"19:54","arrival":"20:02","elapsedMin":7.3,"distance":"0 m"},{"mode":"transit","label":"Bus 161","from":"Station Plamondon","to":"Fleet / Queen-Mary","departure":"20:02","arrival":"20:09","elapsedMin":7.8,"distance":"1.7 km"},{"mode":"walk","label":"Walk","from":"Fleet / Queen-Mary","to":"Destination","departure":"20:09","arrival":"20:17","elapsedMin":7.9,"distance":"561 m"}]},{"appTime":20.3,"appTransfers":1,"appModes":["Bus","BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"de Verdun / Manning","departure":"06:21","arrival":"06:22","elapsedMin":1.3,"distance":"99 m"},{"mode":"transit","label":"Bus 107","from":"de Verdun / Manning","to":"Regina / de Verdun","departure":"06:22","arrival":"06:30","elapsedMin":7.3,"distance":"2.0 km"},{"mode":"bike","label":"BIXI","from":"Regina / de Verdun","to":"M\u00e9tro Lionel-Groulx (St-Jacques / Atwater)","departure":"06:30","arrival":"06:39","elapsedMin":9.8,"distance":"2.1 km"},{"mode":"walk","label":"Walk","from":"M\u00e9tro Lionel-Groulx (St-Jacques / Atwater)","to":"Destination","departure":"06:39","arrival":"06:41","elapsedMin":1.4,"distance":"104 m"}],"appDistance":"4.4 km","error":null,"elapsedSec":2.64,"id":8,"departureTime":"2026-08-15T06:21","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4494%2C-73.5714&destination=45.4832%2C-73.5788&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4494%2C-73.5714&destination=45.4832%2C-73.5788&travelmode=transit","gTransitTime":22.2,"gTransitTransfers":1,"gTransitModes":["Walk","Bus","Metro"],"gTransitDistance":"4.9 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"De Verdun / Manning","departure":"06:21","arrival":"06:22","elapsedMin":1.4,"distance":"103 m"},{"mode":"wait","label":"Wait for Bus 107","from":"De Verdun / Manning","to":"De Verdun / Manning","departure":"06:22","arrival":"06:22","elapsedMin":0.3,"distance":"0 m"},{"mode":"transit","label":"Bus 107","from":"De Verdun / Manning","to":"Station Verdun","departure":"06:22","arrival":"06:26","elapsedMin":3.2,"distance":"1.1 km"},{"mode":"walk","label":"Walk","from":"Station Verdun","to":"Verdun","departure":"06:26","arrival":"06:27","elapsedMin":1.7,"distance":"71 m"},{"mode":"wait","label":"Wait for Metro 1","from":"Verdun","to":"Verdun","departure":"06:27","arrival":"06:34","elapsedMin":6.3,"distance":"0 m"},{"mode":"transit","label":"Metro 1","from":"Verdun","to":"Lionel-Groulx","departure":"06:34","arrival":"06:40","elapsedMin":6.0,"distance":"3.4 km"},{"mode":"walk","label":"Walk","from":"Lionel-Groulx","to":"Destination","departure":"06:40","arrival":"06:43","elapsedMin":3.2,"distance":"210 m"}]},{"appTime":22.1,"appTransfers":0,"appModes":["Metro"],"appLegs":[{"mode":"wait","label":"Wait for Metro line 1","from":"Origin","to":"Station Angrignon","departure":"12:08","arrival":"12:15","elapsedMin":7.0,"distance":"56 m"},{"mode":"transit","label":"Metro line 1","from":"Station Angrignon","to":"Station Lionel-Groulx","departure":"12:15","arrival":"12:26","elapsedMin":11.0,"distance":"6.2 km"},{"mode":"walk","label":"Walk","from":"Station Lionel-Groulx","to":"Destination","departure":"12:26","arrival":"12:30","elapsedMin":4.1,"distance":"189 m"}],"appDistance":"6.4 km","error":null,"elapsedSec":2.97,"id":9,"departureTime":"2026-08-15T12:08","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4462%2C-73.6035&destination=45.4832%2C-73.5788&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4462%2C-73.6035&destination=45.4832%2C-73.5788&travelmode=transit","gTransitTime":14.2,"gTransitTransfers":0,"gTransitModes":["Metro"],"gTransitDistance":"6.5 km","gTransitLegs":[{"mode":"wait","label":"Wait for Metro 1","from":"Origin","to":"Origin","departure":"12:08","arrival":"12:09","elapsedMin":1.0,"distance":"0 m"},{"mode":"transit","label":"Metro 1","from":"Angrignon","to":"Lionel-Groulx","departure":"12:09","arrival":"12:19","elapsedMin":10.0,"distance":"6.3 km"},{"mode":"walk","label":"Walk","from":"Lionel-Groulx","to":"Destination","departure":"12:19","arrival":"12:22","elapsedMin":3.2,"distance":"210 m"}]},{"appTime":38.5,"appTransfers":1,"appModes":["Walk","BIXI","REM"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Rielle / Wellington","departure":"19:02","arrival":"19:05","elapsedMin":3.1,"distance":"227 m"},{"mode":"bike","label":"BIXI","from":"Rielle / Wellington","to":"REM \u00cele-des-Soeurs (Ren\u00e9-L\u00e9vesque)","departure":"19:05","arrival":"19:22","elapsedMin":17.6,"distance":"4.0 km"},{"mode":"walk","label":"Walk","from":"REM \u00cele-des-Soeurs (Ren\u00e9-L\u00e9vesque)","to":"Station \u00cele-des-Soeurs - Quai 2","departure":"19:22","arrival":"19:24","elapsedMin":1.3,"distance":"98 m"},{"mode":"wait","label":"Wait for REM","from":"Station \u00cele-des-Soeurs - Quai 2","to":"Station \u00cele-des-Soeurs - Quai 2","departure":"19:24","arrival":"19:28","elapsedMin":4.2,"distance":"0 m"},{"mode":"transit","label":"REM","from":"Station \u00cele-des-Soeurs - Quai 2","to":"Station Brossard - Quai 2","departure":"19:28","arrival":"19:38","elapsedMin":10.8,"distance":"10.5 km"},{"mode":"walk","label":"Exit to street","from":"Station Brossard - Quai 2","to":"Destination","departure":"19:38","arrival":"19:40","elapsedMin":1.6,"distance":"8 m"}],"appDistance":"14.8 km","error":null,"elapsedSec":14.51,"id":10,"departureTime":"2026-08-14T19:02","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4587%2C-73.5679&destination=45.4381%2C-73.4306&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4587%2C-73.5679&destination=45.4381%2C-73.4306&travelmode=transit","gTransitTime":46.0,"gTransitTransfers":1,"gTransitModes":["Walk","Bus","REM"],"gTransitDistance":"15.5 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Station De l'\u00c9glise","departure":"19:02","arrival":"19:07","elapsedMin":5.9,"distance":"434 m"},{"mode":"wait","label":"Wait for Bus 12","from":"Station De l'\u00c9glise","to":"Station De l'\u00c9glise","departure":"19:07","arrival":"19:15","elapsedMin":7.4,"distance":"0 m"},{"mode":"transit","label":"Bus 12","from":"Station De l'\u00c9glise","to":"Station \u00cele-des-Soeurs","departure":"19:15","arrival":"19:27","elapsedMin":11.7,"distance":"4.5 km"},{"mode":"walk","label":"Walk","from":"Station \u00cele-des-Soeurs","to":"\u00cele-des-Soeurs","departure":"19:27","arrival":"19:29","elapsedMin":2.8,"distance":"124 m"},{"mode":"wait","label":"Wait for REM A4-A1","from":"\u00cele-des-Soeurs","to":"\u00cele-des-Soeurs","departure":"19:29","arrival":"19:37","elapsedMin":7.4,"distance":"0 m"},{"mode":"transit","label":"REM A4-A1","from":"\u00cele-des-Soeurs","to":"Brossard","departure":"19:37","arrival":"19:47","elapsedMin":10.8,"distance":"10.5 km"}]},{"appTime":12.0,"appTransfers":0,"appModes":["REM"],"appLegs":[{"mode":"wait","label":"Wait for REM","from":"Origin","to":"Station \u00cele-des-Soeurs - Quai 1","departure":"16:00","arrival":"16:03","elapsedMin":3.6,"distance":"31 m"},{"mode":"transit","label":"REM","from":"Station \u00cele-des-Soeurs - Quai 1","to":"Station Gare Centrale - Quai 1","departure":"16:03","arrival":"16:10","elapsedMin":6.8,"distance":"5.6 km"},{"mode":"walk","label":"Exit to street","from":"Station Gare Centrale - Quai 1","to":"Destination","departure":"16:10","arrival":"16:12","elapsedMin":1.7,"distance":"20 m"}],"appDistance":"5.6 km","error":null,"elapsedSec":3.35,"id":11,"departureTime":"2026-08-15T16:00","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4703%2C-73.5389&destination=45.5%2C-73.567&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4703%2C-73.5389&destination=45.5%2C-73.567&travelmode=transit","gTransitTime":14.8,"gTransitTransfers":0,"gTransitModes":["REM"],"gTransitDistance":"5.7 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"\u00cele-des-Soeurs","departure":"16:00","arrival":"16:01","elapsedMin":1.6,"distance":"85 m"},{"mode":"wait","label":"Wait for REM A4-A1","from":"\u00cele-des-Soeurs","to":"\u00cele-des-Soeurs","departure":"16:01","arrival":"16:08","elapsedMin":6.4,"distance":"0 m"},{"mode":"transit","label":"REM A4-A1","from":"\u00cele-des-Soeurs","to":"Gare Centrale","departure":"16:08","arrival":"16:14","elapsedMin":6.8,"distance":"5.6 km"}]},{"appTime":35.8,"appTransfers":0,"appModes":["REM","Walk"],"appLegs":[{"mode":"wait","label":"Wait for REM","from":"Origin","to":"Station Brossard - Quai 1","departure":"07:29","arrival":"07:37","elapsedMin":8.5,"distance":"19 m"},{"mode":"transit","label":"REM","from":"Station Brossard - Quai 1","to":"Station McGill - Quai 1","departure":"07:37","arrival":"07:57","elapsedMin":19.6,"distance":"16.6 km"},{"mode":"walk","label":"Walk","from":"Station McGill - Quai 1","to":"Destination","departure":"07:57","arrival":"08:04","elapsedMin":7.6,"distance":"452 m"}],"appDistance":"17.1 km","error":null,"elapsedSec":3.45,"id":12,"departureTime":"2026-08-15T07:29","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4381%2C-73.4306&destination=45.5048%2C-73.5772&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4381%2C-73.4306&destination=45.5048%2C-73.5772&travelmode=transit","gTransitTime":27.8,"gTransitTransfers":0,"gTransitModes":["REM","Walk"],"gTransitDistance":"17.1 km","gTransitLegs":[{"mode":"wait","label":"Wait for REM A4-A1","from":"Origin","to":"Origin","departure":"07:29","arrival":"07:30","elapsedMin":1.0,"distance":"0 m"},{"mode":"transit","label":"REM A4-A1","from":"Brossard","to":"Station McGill","departure":"07:30","arrival":"07:49","elapsedMin":19.6,"distance":"16.6 km"},{"mode":"walk","label":"Walk","from":"Station McGill","to":"Destination","departure":"07:49","arrival":"07:56","elapsedMin":7.1,"distance":"442 m"}]},{"appTime":26.7,"appTransfers":0,"appModes":["Walk","Metro"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Station Longueuil-Universit\u00e9 de Sherbrooke -Zone B","departure":"10:00","arrival":"10:01","elapsedMin":1.9,"distance":"137 m"},{"mode":"wait","label":"Wait for Metro line 4","from":"Station Longueuil-Universit\u00e9 de Sherbrooke -Zone B","to":"Station Longueuil-Universit\u00e9 de Sherbrooke -Zone B","departure":"10:01","arrival":"10:10","elapsedMin":8.1,"distance":"0 m"},{"mode":"transit","label":"Metro line 4","from":"Station Longueuil-Universit\u00e9 de Sherbrooke -Zone B","to":"Station Berri-UQAM","departure":"10:10","arrival":"10:16","elapsedMin":6.0,"distance":"3.8 km"},{"mode":"walk","label":"Walk","from":"Station Berri-UQAM","to":"Destination","departure":"10:16","arrival":"10:26","elapsedMin":10.7,"distance":"675 m"}],"appDistance":"4.6 km","error":null,"elapsedSec":3.68,"id":13,"departureTime":"2026-08-15T10:00","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5257%2C-73.5217&destination=45.5152%2C-73.5605&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5257%2C-73.5217&destination=45.5152%2C-73.5605&travelmode=transit","gTransitTime":18.0,"gTransitTransfers":0,"gTransitModes":["Metro"],"gTransitDistance":"4.2 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Longueuil\u2013Universit\u00e9-de-Sherbrooke","departure":"10:00","arrival":"10:02","elapsedMin":2.4,"distance":"132 m"},{"mode":"wait","label":"Wait for Metro 4","from":"Longueuil\u2013Universit\u00e9-de-Sherbrooke","to":"Longueuil\u2013Universit\u00e9-de-Sherbrooke","departure":"10:02","arrival":"10:10","elapsedMin":7.6,"distance":"0 m"},{"mode":"transit","label":"Metro 4","from":"Longueuil\u2013Universit\u00e9-de-Sherbrooke","to":"Berri-UQAM","departure":"10:10","arrival":"10:16","elapsedMin":6.0,"distance":"3.9 km"},{"mode":"walk","label":"Walk","from":"Berri-UQAM","to":"Destination","departure":"10:16","arrival":"10:18","elapsedMin":2.0,"distance":"143 m"}]},{"appTime":65.8,"appTransfers":1,"appModes":["Walk","Metro"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Station C\u00f4te-Vertu","departure":"17:26","arrival":"17:33","elapsedMin":7.0,"distance":"517 m"},{"mode":"wait","label":"Wait for Metro line 2","from":"Station C\u00f4te-Vertu","to":"Station C\u00f4te-Vertu","departure":"17:33","arrival":"17:39","elapsedMin":6.0,"distance":"0 m"},{"mode":"transit","label":"Metro line 2","from":"Station C\u00f4te-Vertu","to":"Station Lionel-Groulx","departure":"17:39","arrival":"17:56","elapsedMin":17.0,"distance":"10.1 km"},{"mode":"wait","label":"Wait for Metro line 1","from":"Station Lionel-Groulx","to":"Station Lionel-Groulx","departure":"17:56","arrival":"17:59","elapsedMin":3.0,"distance":"0 m"},{"mode":"transit","label":"Metro line 1","from":"Station Lionel-Groulx","to":"Station Honor\u00e9-Beaugrand","departure":"17:59","arrival":"18:26","elapsedMin":27.0,"distance":"13.9 km"},{"mode":"walk","label":"Walk","from":"Station Honor\u00e9-Beaugrand","to":"Destination","departure":"18:26","arrival":"18:31","elapsedMin":5.8,"distance":"314 m"}],"appDistance":"24.9 km","error":null,"elapsedSec":6.07,"id":14,"departureTime":"2026-08-15T17:26","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5145%2C-73.6875&destination=45.5978%2C-73.533&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5145%2C-73.6875&destination=45.5978%2C-73.533&travelmode=transit","gTransitTime":71.5,"gTransitTransfers":1,"gTransitModes":["Walk","Metro"],"gTransitDistance":"24.8 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"C\u00f4te-Vertu","departure":"17:26","arrival":"17:33","elapsedMin":7.4,"distance":"520 m"},{"mode":"wait","label":"Wait for Metro 2","from":"C\u00f4te-Vertu","to":"C\u00f4te-Vertu","departure":"17:33","arrival":"17:39","elapsedMin":5.6,"distance":"0 m"},{"mode":"transit","label":"Metro 2","from":"C\u00f4te-Vertu","to":"Berri-UQAM","departure":"17:39","arrival":"18:05","elapsedMin":26.0,"distance":"14.4 km"},{"mode":"walk","label":"Walk","from":"Berri-UQAM","to":"Berri-UQAM","departure":"18:05","arrival":"18:06","elapsedMin":1.3,"distance":"0 m"},{"mode":"wait","label":"Wait for Metro 1","from":"Berri-UQAM","to":"Berri-UQAM","departure":"18:06","arrival":"18:15","elapsedMin":8.7,"distance":"0 m"},{"mode":"transit","label":"Metro 1","from":"Berri-UQAM","to":"Honor\u00e9-Beaugrand","departure":"18:15","arrival":"18:32","elapsedMin":17.0,"distance":"9.5 km"},{"mode":"walk","label":"Walk","from":"Honor\u00e9-Beaugrand","to":"Destination","departure":"18:32","arrival":"18:37","elapsedMin":5.5,"distance":"322 m"}]},{"appTime":20.0,"appTransfers":1,"appModes":["BIXI","Metro"],"appLegs":[{"mode":"bike","label":"BIXI","from":"Origin","to":"Station Rosemont","departure":"14:20","arrival":"14:29","elapsedMin":9.0,"distance":"1.8 km"},{"mode":"wait","label":"Wait for Metro line 2","from":"Station Rosemont","to":"Station Rosemont","departure":"14:29","arrival":"14:32","elapsedMin":3.0,"distance":"0 m"},{"mode":"transit","label":"Metro line 2","from":"Station Rosemont","to":"Station Berri-UQAM","departure":"14:32","arrival":"14:38","elapsedMin":6.0,"distance":"3.4 km"},{"mode":"walk","label":"Walk","from":"Station Berri-UQAM","to":"Destination","departure":"14:38","arrival":"14:39","elapsedMin":2.0,"distance":"37 m"}],"appDistance":"5.2 km","error":null,"elapsedSec":4.86,"id":15,"departureTime":"2026-08-15T14:20","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5367%2C-73.6151&destination=45.5152%2C-73.5605&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5367%2C-73.6151&destination=45.5152%2C-73.5605&travelmode=transit","gTransitTime":19.7,"gTransitTransfers":0,"gTransitModes":["Walk","Metro"],"gTransitDistance":"5.4 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Jean-Talon","departure":"14:20","arrival":"14:25","elapsedMin":5.8,"distance":"335 m"},{"mode":"wait","label":"Wait for Metro 2","from":"Jean-Talon","to":"Jean-Talon","departure":"14:25","arrival":"14:29","elapsedMin":3.2,"distance":"0 m"},{"mode":"transit","label":"Metro 2","from":"Jean-Talon","to":"Berri-UQAM","departure":"14:29","arrival":"14:38","elapsedMin":9.0,"distance":"5.0 km"},{"mode":"walk","label":"Walk","from":"Berri-UQAM","to":"Destination","departure":"14:38","arrival":"14:39","elapsedMin":1.7,"distance":"66 m"}]},{"appTime":24.1,"appTransfers":1,"appModes":["Walk","BIXI","Metro"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"de Normanville / Beaubien","departure":"22:15","arrival":"22:18","elapsedMin":3.1,"distance":"225 m"},{"mode":"bike","label":"BIXI","from":"de Normanville / Beaubien","to":"Station Rosemont","departure":"22:18","arrival":"22:24","elapsedMin":6.5,"distance":"1.3 km"},{"mode":"wait","label":"Wait for Metro line 2","from":"Station Rosemont","to":"Station Rosemont","departure":"22:24","arrival":"22:28","elapsedMin":3.5,"distance":"0 m"},{"mode":"transit","label":"Metro line 2","from":"Station Rosemont","to":"Station Place-d'Armes","departure":"22:28","arrival":"22:36","elapsedMin":8.0,"distance":"4.5 km"},{"mode":"walk","label":"Walk","from":"Station Place-d'Armes","to":"Destination","departure":"22:36","arrival":"22:39","elapsedMin":3.1,"distance":"121 m"}],"appDistance":"6.2 km","error":null,"elapsedSec":6.1,"id":16,"departureTime":"2026-08-14T22:15","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5407%2C-73.6006&destination=45.5061%2C-73.5605&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5407%2C-73.6006&destination=45.5061%2C-73.5605&travelmode=transit","gTransitTime":40.7,"gTransitTransfers":1,"gTransitModes":["Walk","Bus","Metro"],"gTransitDistance":"6.5 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Beaubien / De Lanaudi\u00e8re","departure":"22:15","arrival":"22:17","elapsedMin":3.0,"distance":"219 m"},{"mode":"wait","label":"Wait for Bus 18","from":"Beaubien / De Lanaudi\u00e8re","to":"Beaubien / De Lanaudi\u00e8re","departure":"22:17","arrival":"22:33","elapsedMin":15.8,"distance":"0 m"},{"mode":"transit","label":"Bus 18","from":"Beaubien / De Lanaudi\u00e8re","to":"Station Beaubien","departure":"22:33","arrival":"22:38","elapsedMin":4.2,"distance":"771 m"},{"mode":"walk","label":"Walk","from":"Station Beaubien","to":"Beaubien","departure":"22:38","arrival":"22:41","elapsedMin":3.2,"distance":"137 m"},{"mode":"wait","label":"Wait for Metro 2","from":"Beaubien","to":"Beaubien","departure":"22:41","arrival":"22:45","elapsedMin":3.8,"distance":"0 m"},{"mode":"transit","label":"Metro 2","from":"Beaubien","to":"Place-d'Armes","departure":"22:45","arrival":"22:54","elapsedMin":9.0,"distance":"5.3 km"},{"mode":"walk","label":"Walk","from":"Place-d'Armes","to":"Destination","departure":"22:54","arrival":"22:55","elapsedMin":1.7,"distance":"130 m"}]},{"appTime":42.0,"appTransfers":1,"appModes":["Walk","Bus","BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"de la C\u00f4te-Vertu / Lebeau","departure":"22:45","arrival":"22:46","elapsedMin":1.5,"distance":"112 m"},{"mode":"wait","label":"Wait for Bus 54","from":"de la C\u00f4te-Vertu / Lebeau","to":"de la C\u00f4te-Vertu / Lebeau","departure":"22:46","arrival":"22:53","elapsedMin":6.5,"distance":"0 m"},{"mode":"transit","label":"Bus 54","from":"de la C\u00f4te-Vertu / Lebeau","to":"Chabanel / de l'Esplanade","departure":"22:53","arrival":"23:10","elapsedMin":17.4,"distance":"4.7 km"},{"mode":"bike","label":"BIXI","from":"Chabanel / de l'Esplanade","to":"St-Dominique / Gounod","departure":"23:10","arrival":"23:21","elapsedMin":11.5,"distance":"2.5 km"},{"mode":"walk","label":"Walk","from":"St-Dominique / Gounod","to":"Destination","departure":"23:21","arrival":"23:27","elapsedMin":5.1,"distance":"375 m"}],"appDistance":"7.7 km","error":null,"elapsedSec":7.45,"id":17,"departureTime":"2026-08-14T22:45","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5299%2C-73.6669&destination=45.5363%2C-73.6265&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5299%2C-73.6669&destination=45.5363%2C-73.6265&travelmode=transit","gTransitTime":55.2,"gTransitTransfers":1,"gTransitModes":["Walk","Bus"],"gTransitDistance":"7.7 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"De la C\u00f4te-Vertu / Lebeau","departure":"22:45","arrival":"22:46","elapsedMin":1.6,"distance":"117 m"},{"mode":"wait","label":"Wait for Bus 54","from":"De la C\u00f4te-Vertu / Lebeau","to":"De la C\u00f4te-Vertu / Lebeau","departure":"22:46","arrival":"22:53","elapsedMin":6.4,"distance":"0 m"},{"mode":"transit","label":"Bus 54","from":"De la C\u00f4te-Vertu / Lebeau","to":"Chabanel / Saint-Laurent","departure":"22:53","arrival":"23:11","elapsedMin":18.0,"distance":"5.1 km"},{"mode":"walk","label":"Walk","from":"Chabanel / Saint-Laurent","to":"Saint-Laurent / Chabanel","departure":"23:11","arrival":"23:12","elapsedMin":1.1,"distance":"54 m"},{"mode":"wait","label":"Wait for Bus 55","from":"Saint-Laurent / Chabanel","to":"Saint-Laurent / Chabanel","departure":"23:12","arrival":"23:30","elapsedMin":18.7,"distance":"0 m"},{"mode":"transit","label":"Bus 55","from":"Saint-Laurent / Chabanel","to":"Saint-Laurent / Villeray","departure":"23:30","arrival":"23:37","elapsedMin":6.6,"distance":"2.3 km"},{"mode":"walk","label":"Walk","from":"Saint-Laurent / Villeray","to":"Destination","departure":"23:37","arrival":"23:40","elapsedMin":2.8,"distance":"212 m"}]},{"appTime":29.7,"appTransfers":1,"appModes":["Walk","Bus","BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Station Henri-Bourassa","departure":"03:11","arrival":"03:12","elapsedMin":1.1,"distance":"79 m"},{"mode":"wait","label":"Wait for Bus 380","from":"Station Henri-Bourassa","to":"Station Henri-Bourassa","departure":"03:12","arrival":"03:13","elapsedMin":1.3,"distance":"0 m"},{"mode":"transit","label":"Bus 380","from":"Station Henri-Bourassa","to":"Henri-Bourassa / Bruch\u00e9si","departure":"03:13","arrival":"03:21","elapsedMin":8.1,"distance":"2.8 km"},{"mode":"walk","label":"Walk","from":"Henri-Bourassa / Bruch\u00e9si","to":"Parc nature de l'\u00cele-de-la-Visitation (Gouin / Bruch\u00e9si)","departure":"03:21","arrival":"03:24","elapsedMin":3.3,"distance":"242 m"},{"mode":"bike","label":"BIXI","from":"Parc nature de l'\u00cele-de-la-Visitation (Gouin / Bruch\u00e9si)","to":"Parc Maurice-B\u00e9langer (H\u00e9bert / Denomm\u00e9e)","departure":"03:24","arrival":"03:37","elapsedMin":12.4,"distance":"2.7 km"},{"mode":"walk","label":"Walk","from":"Parc Maurice-B\u00e9langer (H\u00e9bert / Denomm\u00e9e)","to":"Destination","departure":"03:37","arrival":"03:40","elapsedMin":3.5,"distance":"259 m"}],"appDistance":"6.1 km","error":null,"elapsedSec":3.84,"id":18,"departureTime":"2026-08-15T03:11","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5546%2C-73.6693&destination=45.589%2C-73.63&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5546%2C-73.6693&destination=45.589%2C-73.63&travelmode=transit","gTransitTime":32.4,"gTransitTransfers":1,"gTransitModes":["Walk","Bus"],"gTransitDistance":"7.3 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Terminus Henri-Bourassa","departure":"03:11","arrival":"03:12","elapsedMin":1.4,"distance":"80 m"},{"mode":"wait","label":"Wait for Bus 380","from":"Terminus Henri-Bourassa","to":"Terminus Henri-Bourassa","departure":"03:12","arrival":"03:13","elapsedMin":1.0,"distance":"0 m"},{"mode":"transit","label":"Bus 380","from":"Terminus Henri-Bourassa","to":"Henri-Bourassa / H\u00f4tel-de-Ville","departure":"03:13","arrival":"03:28","elapsedMin":14.7,"distance":"5.3 km"},{"mode":"walk","label":"Walk","from":"Henri-Bourassa / H\u00f4tel-de-Ville","to":"Carrefour Henri-Bourassa / Pie-IX","departure":"03:28","arrival":"03:30","elapsedMin":2.2,"distance":"139 m"},{"mode":"wait","label":"Wait for Bus 355","from":"Carrefour Henri-Bourassa / Pie-IX","to":"Carrefour Henri-Bourassa / Pie-IX","departure":"03:30","arrival":"03:34","elapsedMin":3.7,"distance":"0 m"},{"mode":"transit","label":"Bus 355","from":"Carrefour Henri-Bourassa / Pie-IX","to":"Pie-IX / Forest","departure":"03:34","arrival":"03:37","elapsedMin":3.5,"distance":"1.4 km"},{"mode":"walk","label":"Walk","from":"Pie-IX / Forest","to":"Destination","departure":"03:37","arrival":"03:43","elapsedMin":5.8,"distance":"385 m"}]},{"appTime":50.5,"appTransfers":1,"appModes":["Walk","Bus","Metro"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Lacordaire / Jean-Talon","departure":"21:30","arrival":"21:40","elapsedMin":10.9,"distance":"804 m"},{"mode":"wait","label":"Wait for Bus 32","from":"Lacordaire / Jean-Talon","to":"Lacordaire / Jean-Talon","departure":"21:40","arrival":"21:46","elapsedMin":5.3,"distance":"0 m"},{"mode":"transit","label":"Bus 32","from":"Lacordaire / Jean-Talon","to":"Station Cadillac","departure":"21:46","arrival":"21:57","elapsedMin":11.1,"distance":"3.0 km"},{"mode":"wait","label":"Wait for Metro line 1","from":"Station Cadillac","to":"Station Cadillac","departure":"21:57","arrival":"22:00","elapsedMin":2.6,"distance":"0 m"},{"mode":"transit","label":"Metro line 1","from":"Station Cadillac","to":"Station Peel","departure":"22:00","arrival":"22:17","elapsedMin":17.0,"distance":"9.1 km"},{"mode":"walk","label":"Walk","from":"Station Peel","to":"Destination","departure":"22:17","arrival":"22:20","elapsedMin":3.5,"distance":"149 m"}],"appDistance":"13.1 km","error":null,"elapsedSec":7.12,"id":19,"departureTime":"2026-08-14T21:30","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.588%2C-73.5836&destination=45.4998%2C-73.5751&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.588%2C-73.5836&destination=45.4998%2C-73.5751&travelmode=transit","gTransitTime":55.5,"gTransitTransfers":1,"gTransitModes":["Walk","Bus","Metro"],"gTransitDistance":"13.2 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Lacordaire / Jean-Talon","departure":"21:30","arrival":"21:41","elapsedMin":11.2,"distance":"790 m"},{"mode":"wait","label":"Wait for Bus 32","from":"Lacordaire / Jean-Talon","to":"Lacordaire / Jean-Talon","departure":"21:41","arrival":"21:46","elapsedMin":5.0,"distance":"0 m"},{"mode":"transit","label":"Bus 32","from":"Lacordaire / Jean-Talon","to":"Station Cadillac","departure":"21:46","arrival":"21:57","elapsedMin":10.7,"distance":"3.0 km"},{"mode":"walk","label":"Walk","from":"Station Cadillac","to":"Cadillac","departure":"21:57","arrival":"21:58","elapsedMin":1.7,"distance":"35 m"},{"mode":"wait","label":"Wait for Metro 1","from":"Cadillac","to":"Cadillac","departure":"21:58","arrival":"22:06","elapsedMin":7.3,"distance":"0 m"},{"mode":"transit","label":"Metro 1","from":"Cadillac","to":"Peel","departure":"22:06","arrival":"22:23","elapsedMin":17.0,"distance":"9.3 km"},{"mode":"walk","label":"Walk","from":"Peel","to":"Destination","departure":"22:23","arrival":"22:25","elapsedMin":2.5,"distance":"143 m"}]},{"appTime":48.8,"appTransfers":0,"appModes":["Walk","Bus"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Sherbrooke / 16e Avenue","departure":"15:32","arrival":"15:35","elapsedMin":3.2,"distance":"234 m"},{"mode":"wait","label":"Wait for Bus 186","from":"Sherbrooke / 16e Avenue","to":"Sherbrooke / 16e Avenue","departure":"15:35","arrival":"15:45","elapsedMin":10.5,"distance":"0 m"},{"mode":"transit","label":"Bus 186","from":"Sherbrooke / 16e Avenue","to":"Station Honor\u00e9-Beaugrand","departure":"15:45","arrival":"16:03","elapsedMin":17.3,"distance":"5.9 km"},{"mode":"walk","label":"Walk","from":"Station Honor\u00e9-Beaugrand","to":"Destination","departure":"16:03","arrival":"16:20","elapsedMin":17.8,"distance":"1.3 km"}],"appDistance":"7.4 km","error":null,"elapsedSec":7.71,"id":21,"departureTime":"2026-08-15T15:32","gBixiLink":null,"gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.646%2C-73.515&destination=45.5915%2C-73.5445&travelmode=transit","gTransitTime":73.1,"gTransitTransfers":2,"gTransitModes":["Walk","Bus","Metro"],"gTransitDistance":"10.3 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Industriel / Jean-Viel","departure":"15:32","arrival":"15:38","elapsedMin":6.8,"distance":"508 m"},{"mode":"wait","label":"Wait for Bus 86","from":"Industriel / Jean-Viel","to":"Industriel / Jean-Viel","departure":"15:38","arrival":"15:54","elapsedMin":15.7,"distance":"0 m"},{"mode":"transit","label":"Bus 86","from":"Industriel / Jean-Viel","to":"Saint-Jean-Baptiste / Ren\u00e9-L\u00e9vesque","departure":"15:54","arrival":"16:00","elapsedMin":5.4,"distance":"1.9 km"},{"mode":"walk","label":"Walk","from":"Saint-Jean-Baptiste / Ren\u00e9-L\u00e9vesque","to":"Ren\u00e9-L\u00e9vesque / Saint-Jean-Baptiste","departure":"16:00","arrival":"16:00","elapsedMin":0.8,"distance":"37 m"},{"mode":"wait","label":"Wait for Bus 187","from":"Ren\u00e9-L\u00e9vesque / Saint-Jean-Baptiste","to":"Ren\u00e9-L\u00e9vesque / Saint-Jean-Baptiste","departure":"16:00","arrival":"16:10","elapsedMin":9.8,"distance":"0 m"},{"mode":"transit","label":"Bus 187","from":"Ren\u00e9-L\u00e9vesque / Saint-Jean-Baptiste","to":"Station Honor\u00e9-Beaugrand","departure":"16:10","arrival":"16:29","elapsedMin":18.4,"distance":"6.5 km"},{"mode":"walk","label":"Walk","from":"Station Honor\u00e9-Beaugrand","to":"Honor\u00e9-Beaugrand","departure":"16:29","arrival":"16:30","elapsedMin":1.6,"distance":"88 m"},{"mode":"wait","label":"Wait for Metro 1","from":"Honor\u00e9-Beaugrand","to":"Honor\u00e9-Beaugrand","departure":"16:30","arrival":"16:37","elapsedMin":6.4,"distance":"0 m"},{"mode":"transit","label":"Metro 1","from":"Honor\u00e9-Beaugrand","to":"Radisson","departure":"16:37","arrival":"16:39","elapsedMin":2.0,"distance":"869 m"},{"mode":"walk","label":"Walk","from":"Radisson","to":"Destination","departure":"16:39","arrival":"16:45","elapsedMin":6.1,"distance":"440 m"}]},{"appTime":12.2,"appTransfers":0,"appModes":["Walk","BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Durocher / Bernard","departure":"16:58","arrival":"17:04","elapsedMin":6.3,"distance":"463 m"},{"mode":"bike","label":"BIXI","from":"Durocher / Bernard","to":"Jeanne-Mance / St-Viateur","departure":"17:04","arrival":"17:07","elapsedMin":3.6,"distance":"616 m"},{"mode":"walk","label":"Walk","from":"Jeanne-Mance / St-Viateur","to":"Destination","departure":"17:07","arrival":"17:10","elapsedMin":2.4,"distance":"175 m"}],"appDistance":"1.3 km","error":null,"elapsedSec":2.64,"id":22,"departureTime":"2026-08-15T16:58","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5188%2C-73.6096&destination=45.5219%2C-73.6013&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5188%2C-73.6096&destination=45.5219%2C-73.6013&travelmode=transit","gTransitTime":14.0,"gTransitTransfers":0,"gTransitModes":["Walk"],"gTransitDistance":"1.0 km","gTransitLegs":[]},{"appTime":23.1,"appTransfers":1,"appModes":["Walk","Metro","BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Station Universit\u00e9-de-Montr\u00e9al","departure":"11:27","arrival":"11:33","elapsedMin":6.9,"distance":"506 m"},{"mode":"wait","label":"Wait for Metro line 5","from":"Station Universit\u00e9-de-Montr\u00e9al","to":"Station Universit\u00e9-de-Montr\u00e9al","departure":"11:33","arrival":"11:37","elapsedMin":3.1,"distance":"0 m"},{"mode":"transit","label":"Metro line 5","from":"Station Universit\u00e9-de-Montr\u00e9al","to":"Station De Castelnau","departure":"11:37","arrival":"11:44","elapsedMin":7.0,"distance":"4.2 km"},{"mode":"walk","label":"Walk","from":"Station De Castelnau","to":"M\u00e9tro de Castelnau (de Castelnau / St-Dominique)","departure":"11:44","arrival":"11:46","elapsedMin":2.3,"distance":"61 m"},{"mode":"bike","label":"BIXI","from":"M\u00e9tro de Castelnau (de Castelnau / St-Dominique)","to":"Destination","departure":"11:46","arrival":"11:50","elapsedMin":3.8,"distance":"579 m"}],"appDistance":"5.3 km","error":null,"elapsedSec":5.38,"id":23,"departureTime":"2026-08-15T11:27","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5048%2C-73.6142&destination=45.5367%2C-73.6151&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5048%2C-73.6142&destination=45.5367%2C-73.6151&travelmode=transit","gTransitTime":23.9,"gTransitTransfers":0,"gTransitModes":["Walk","Metro"],"gTransitDistance":"5.7 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Universit\u00e9-de-Montr\u00e9al","departure":"11:27","arrival":"11:36","elapsedMin":9.4,"distance":"527 m"},{"mode":"wait","label":"Wait for Metro 5","from":"Universit\u00e9-de-Montr\u00e9al","to":"Universit\u00e9-de-Montr\u00e9al","departure":"11:36","arrival":"11:37","elapsedMin":0.6,"distance":"0 m"},{"mode":"transit","label":"Metro 5","from":"Universit\u00e9-de-Montr\u00e9al","to":"Jean-Talon","departure":"11:37","arrival":"11:45","elapsedMin":8.0,"distance":"4.8 km"},{"mode":"walk","label":"Walk","from":"Jean-Talon","to":"Destination","departure":"11:45","arrival":"11:50","elapsedMin":5.8,"distance":"352 m"}]},{"appTime":44.2,"appTransfers":1,"appModes":["Walk","Bus","BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Camillien-Houde / Remembrance","departure":"09:30","arrival":"09:36","elapsedMin":6.1,"distance":"451 m"},{"mode":"wait","label":"Wait for Bus 11","from":"Camillien-Houde / Remembrance","to":"Camillien-Houde / Remembrance","departure":"09:36","arrival":"09:48","elapsedMin":11.9,"distance":"0 m"},{"mode":"transit","label":"Bus 11","from":"Camillien-Houde / Remembrance","to":"du Mont-Royal / Clark","departure":"09:48","arrival":"09:56","elapsedMin":8.6,"distance":"2.8 km"},{"mode":"bike","label":"BIXI","from":"du Mont-Royal / Clark","to":"Notre-Dame / St-Gabriel","departure":"09:56","arrival":"10:10","elapsedMin":14.3,"distance":"3.2 km"},{"mode":"walk","label":"Walk","from":"Notre-Dame / St-Gabriel","to":"Destination","departure":"10:10","arrival":"10:14","elapsedMin":3.3,"distance":"240 m"}],"appDistance":"6.6 km","error":null,"elapsedSec":6.7,"id":24,"departureTime":"2026-08-15T09:30","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5058%2C-73.5959&destination=45.5075%2C-73.554&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5058%2C-73.5959&destination=45.5075%2C-73.554&travelmode=transit","gTransitTime":50.8,"gTransitTransfers":1,"gTransitModes":["Walk","Bus","Metro"],"gTransitDistance":"7.1 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Camillien-Houde / Remembrance","departure":"09:30","arrival":"09:36","elapsedMin":7.0,"distance":"418 m"},{"mode":"wait","label":"Wait for Bus 11","from":"Camillien-Houde / Remembrance","to":"Camillien-Houde / Remembrance","departure":"09:36","arrival":"09:48","elapsedMin":11.1,"distance":"0 m"},{"mode":"transit","label":"Bus 11","from":"Camillien-Houde / Remembrance","to":"Station Mont-Royal","departure":"09:48","arrival":"10:00","elapsedMin":12.0,"distance":"3.5 km"},{"mode":"walk","label":"Walk","from":"Station Mont-Royal","to":"Mont-Royal","departure":"10:00","arrival":"10:02","elapsedMin":2.2,"distance":"113 m"},{"mode":"wait","label":"Wait for Metro 2","from":"Mont-Royal","to":"Mont-Royal","departure":"10:02","arrival":"10:07","elapsedMin":4.8,"distance":"0 m"},{"mode":"transit","label":"Metro 2","from":"Mont-Royal","to":"Champ-de-Mars","departure":"10:07","arrival":"10:12","elapsedMin":5.0,"distance":"2.6 km"},{"mode":"walk","label":"Walk","from":"Champ-de-Mars","to":"Destination","departure":"10:12","arrival":"10:20","elapsedMin":8.8,"distance":"553 m"}]},{"appTime":21.0,"appTransfers":0,"appModes":["Walk","Bus"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Saint-Jean / Sedgefield","departure":"09:42","arrival":"09:51","elapsedMin":9.6,"distance":"709 m"},{"mode":"wait","label":"Wait for Bus 221","from":"Saint-Jean / Sedgefield","to":"Saint-Jean / Sedgefield","departure":"09:51","arrival":"09:52","elapsedMin":1.2,"distance":"0 m"},{"mode":"transit","label":"Bus 221","from":"Saint-Jean / Sedgefield","to":"Saint-Jean / de Somervale Gardens","departure":"09:52","arrival":"09:53","elapsedMin":0.2,"distance":"109 m"},{"mode":"walk","label":"Walk","from":"Saint-Jean / de Somervale Gardens","to":"Destination","departure":"09:53","arrival":"10:02","elapsedMin":9.9,"distance":"732 m"}],"appDistance":"1.5 km","error":null,"elapsedSec":2.32,"id":25,"departureTime":"2026-08-15T09:42","gBixiLink":null,"gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4515%2C-73.8171&destination=45.4547%2C-73.8267&travelmode=transit","gTransitTime":18.3,"gTransitTransfers":0,"gTransitModes":["Walk"],"gTransitDistance":"1.3 km","gTransitLegs":[]},{"appTime":89.8,"appTransfers":2,"appModes":["Walk","Bus","REM","Metro"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Transcanadienne / Houde","departure":"15:00","arrival":"15:06","elapsedMin":6.4,"distance":"471 m"},{"mode":"wait","label":"Wait for Bus 229","from":"Transcanadienne / Houde","to":"Transcanadienne / Houde","departure":"15:06","arrival":"15:23","elapsedMin":17.0,"distance":"0 m"},{"mode":"transit","label":"Bus 229","from":"Transcanadienne / Houde","to":"Station Kirkland","departure":"15:23","arrival":"15:25","elapsedMin":1.6,"distance":"1.1 km"},{"mode":"walk","label":"Walk","from":"Station Kirkland","to":"Station Kirkland quai 2","departure":"15:25","arrival":"15:28","elapsedMin":3.1,"distance":"230 m"},{"mode":"wait","label":"Wait for REM","from":"Station Kirkland quai 2","to":"Station Kirkland quai 2","departure":"15:28","arrival":"15:38","elapsedMin":9.9,"distance":"0 m"},{"mode":"transit","label":"REM","from":"Station Kirkland quai 2","to":"Station Gare Centrale - Quai 2","departure":"15:38","arrival":"16:12","elapsedMin":34.5,"distance":"29.3 km"},{"mode":"walk","label":"Walk","from":"Station Gare Centrale - Quai 2","to":"Station Bonaventure","departure":"16:12","arrival":"16:17","elapsedMin":4.9,"distance":"250 m"},{"mode":"wait","label":"Wait for Metro line 2","from":"Station Bonaventure","to":"Station Bonaventure","departure":"16:17","arrival":"16:20","elapsedMin":2.5,"distance":"0 m"},{"mode":"transit","label":"Metro line 2","from":"Station Bonaventure","to":"Station Lionel-Groulx","departure":"16:20","arrival":"16:24","elapsedMin":4.0,"distance":"2.0 km"},{"mode":"walk","label":"Walk","from":"Station Lionel-Groulx","to":"Destination","departure":"16:24","arrival":"16:29","elapsedMin":5.8,"distance":"318 m"}],"appDistance":"33.7 km","error":null,"elapsedSec":6.58,"id":26,"departureTime":"2026-08-17T15:00","gBixiLink":null,"gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4477%2C-73.8737&destination=45.482%2C-73.5779&travelmode=transit","gTransitTime":90.3,"gTransitTransfers":2,"gTransitModes":["Walk","Bus","REM","Metro"],"gTransitDistance":"34.2 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Houde / Elkas","departure":"15:00","arrival":"15:04","elapsedMin":4.6,"distance":"337 m"},{"mode":"wait","label":"Wait for Bus 229","from":"Houde / Elkas","to":"Houde / Elkas","departure":"15:04","arrival":"15:23","elapsedMin":18.4,"distance":"0 m"},{"mode":"transit","label":"Bus 229","from":"Houde / Elkas","to":"Station Kirkland","departure":"15:23","arrival":"15:25","elapsedMin":2.0,"distance":"1.5 km"},{"mode":"walk","label":"Walk","from":"Station Kirkland","to":"Station Kirkland","departure":"15:25","arrival":"15:27","elapsedMin":2.2,"distance":"148 m"},{"mode":"wait","label":"Wait for REM A3-A1","from":"Station Kirkland","to":"Station Kirkland","departure":"15:27","arrival":"15:38","elapsedMin":10.8,"distance":"0 m"},{"mode":"transit","label":"REM A3-A1","from":"Station Kirkland","to":"Station McGill","departure":"15:38","arrival":"16:10","elapsedMin":32.6,"distance":"28.8 km"},{"mode":"walk","label":"Walk","from":"Station McGill","to":"McGill","departure":"16:10","arrival":"16:14","elapsedMin":3.7,"distance":"215 m"},{"mode":"wait","label":"Wait for Metro 1","from":"McGill","to":"McGill","departure":"16:14","arrival":"16:20","elapsedMin":5.6,"distance":"0 m"},{"mode":"transit","label":"Metro 1","from":"McGill","to":"Lionel-Groulx","departure":"16:20","arrival":"16:26","elapsedMin":6.0,"distance":"2.9 km"},{"mode":"walk","label":"Walk","from":"Lionel-Groulx","to":"Destination","departure":"16:26","arrival":"16:30","elapsedMin":4.3,"distance":"277 m"}]},{"appTime":62.1,"appTransfers":1,"appModes":["Walk","Bus","REM"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Gouin / Ren\u00e9-\u00c9mard","departure":"14:14","arrival":"14:17","elapsedMin":3.7,"distance":"270 m"},{"mode":"transit","label":"Bus 230","from":"Gouin / Ren\u00e9-\u00c9mard","to":"Station Fairview-Pointe-Claire","departure":"14:17","arrival":"14:31","elapsedMin":13.3,"distance":"5.1 km"},{"mode":"walk","label":"Walk","from":"Station Fairview-Pointe-Claire","to":"Station Fairview-Pointe-Claire quai 2","departure":"14:31","arrival":"14:33","elapsedMin":2.2,"distance":"162 m"},{"mode":"wait","label":"Wait for REM","from":"Station Fairview-Pointe-Claire quai 2","to":"Station Fairview-Pointe-Claire quai 2","departure":"14:33","arrival":"14:43","elapsedMin":10.5,"distance":"0 m"},{"mode":"transit","label":"REM","from":"Station Fairview-Pointe-Claire quai 2","to":"Station Gare Centrale - Quai 2","departure":"14:43","arrival":"15:14","elapsedMin":30.6,"distance":"24.8 km"},{"mode":"walk","label":"Exit to street","from":"Station Gare Centrale - Quai 2","to":"Destination","departure":"15:14","arrival":"15:16","elapsedMin":1.8,"distance":"23 m"}],"appDistance":"30.3 km","error":null,"elapsedSec":5.13,"id":27,"departureTime":"2026-08-15T14:14","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4972%2C-73.85&destination=45.5%2C-73.567&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4972%2C-73.85&destination=45.5%2C-73.567&travelmode=transit","gTransitTime":65.1,"gTransitTransfers":1,"gTransitModes":["Bus","REM"],"gTransitDistance":"26.8 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Gouin / Des Ma\u00e7ons","departure":"14:14","arrival":"14:14","elapsedMin":0.7,"distance":"38 m"},{"mode":"wait","label":"Wait for Bus 205","from":"Gouin / Des Ma\u00e7ons","to":"Gouin / Des Ma\u00e7ons","departure":"14:14","arrival":"14:25","elapsedMin":10.4,"distance":"0 m"},{"mode":"transit","label":"Bus 205","from":"Gouin / Des Ma\u00e7ons","to":"Station Pierrefonds-Roxboro","departure":"14:25","arrival":"14:43","elapsedMin":17.9,"distance":"6.1 km"},{"mode":"walk","label":"Walk","from":"Station Pierrefonds-Roxboro","to":"Station Pierrefonds-Roxboro","departure":"14:43","arrival":"14:44","elapsedMin":1.4,"distance":"86 m"},{"mode":"wait","label":"Wait for REM A4-A1","from":"Station Pierrefonds-Roxboro","to":"Station Pierrefonds-Roxboro","departure":"14:44","arrival":"14:53","elapsedMin":8.9,"distance":"0 m"},{"mode":"transit","label":"REM A4-A1","from":"Station Pierrefonds-Roxboro","to":"Gare Centrale","departure":"14:53","arrival":"15:19","elapsedMin":25.8,"distance":"20.5 km"}]},{"appTime":11.4,"appTransfers":0,"appModes":["Walk"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Destination","departure":"07:36","arrival":"07:47","elapsedMin":11.4,"distance":"840 m"}],"appDistance":"840 m","error":null,"elapsedSec":2.79,"id":28,"departureTime":"2026-08-15T07:36","gBixiLink":null,"gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5088%2C-73.5537&destination=45.5061%2C-73.5605&travelmode=transit","gTransitTime":11.2,"gTransitTransfers":0,"gTransitModes":["Walk"],"gTransitDistance":"807 m","gTransitLegs":[]},{"appTime":22.6,"appTransfers":0,"appModes":["Walk","Metro"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Station Place-d'Armes","departure":"20:23","arrival":"20:24","elapsedMin":1.6,"distance":"121 m"},{"mode":"wait","label":"Wait for Metro line 2","from":"Station Place-d'Armes","to":"Station Place-d'Armes","departure":"20:24","arrival":"20:28","elapsedMin":3.4,"distance":"0 m"},{"mode":"transit","label":"Metro line 2","from":"Station Place-d'Armes","to":"Station Jean-Talon","departure":"20:28","arrival":"20:40","elapsedMin":12.0,"distance":"6.0 km"},{"mode":"walk","label":"Walk","from":"Station Jean-Talon","to":"Destination","departure":"20:40","arrival":"20:45","elapsedMin":5.6,"distance":"304 m"}],"appDistance":"6.5 km","error":null,"elapsedSec":4.34,"id":29,"departureTime":"2026-08-14T20:23","gBixiLink":null,"gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5061%2C-73.5605&destination=45.5367%2C-73.6151&travelmode=transit","gTransitTime":21.8,"gTransitTransfers":0,"gTransitModes":["Walk","Metro"],"gTransitDistance":"6.5 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Place-d'Armes","departure":"20:23","arrival":"20:24","elapsedMin":1.7,"distance":"117 m"},{"mode":"wait","label":"Wait for Metro 2","from":"Place-d'Armes","to":"Place-d'Armes","departure":"20:24","arrival":"20:28","elapsedMin":3.3,"distance":"0 m"},{"mode":"transit","label":"Metro 2","from":"Place-d'Armes","to":"Jean-Talon","departure":"20:28","arrival":"20:40","elapsedMin":12.0,"distance":"6.1 km"},{"mode":"walk","label":"Walk","from":"Jean-Talon","to":"Destination","departure":"20:40","arrival":"20:44","elapsedMin":4.8,"distance":"307 m"}]},{"appTime":58.4,"appTransfers":2,"appModes":["Walk","BIXI","Bus"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Complexe Desjardins (St-Urbain / Ren\u00e9-L\u00e9vesque)","departure":"04:13","arrival":"04:14","elapsedMin":1.4,"distance":"107 m"},{"mode":"bike","label":"BIXI","from":"Complexe Desjardins (St-Urbain / Ren\u00e9-L\u00e9vesque)","to":"Ste-Catherine / D\u00e9z\u00e9ry","departure":"04:14","arrival":"04:32","elapsedMin":18.4,"distance":"4.2 km"},{"mode":"walk","label":"Walk","from":"Ste-Catherine / D\u00e9z\u00e9ry","to":"Sainte-Catherine / D\u00e9z\u00e9ry","departure":"04:32","arrival":"04:33","elapsedMin":1.0,"distance":"77 m"},{"mode":"transit","label":"Bus 353","from":"Sainte-Catherine / D\u00e9z\u00e9ry","to":"B\u00e9langer / Lacordaire","departure":"04:34","arrival":"04:53","elapsedMin":19.3,"distance":"7.6 km"},{"mode":"wait","label":"Wait for Bus 141","from":"B\u00e9langer / Lacordaire","to":"B\u00e9langer / Lacordaire","departure":"04:53","arrival":"04:57","elapsedMin":3.4,"distance":"0 m"},{"mode":"transit","label":"Bus 141","from":"B\u00e9langer / Lacordaire","to":"de Ch\u00e2teauneuf / Talcy","departure":"04:57","arrival":"05:06","elapsedMin":9.9,"distance":"4.3 km"},{"mode":"walk","label":"Walk","from":"de Ch\u00e2teauneuf / Talcy","to":"Destination","departure":"05:06","arrival":"05:11","elapsedMin":4.5,"distance":"330 m"}],"appDistance":"16.6 km","error":null,"elapsedSec":13.81,"id":30,"departureTime":"2026-08-15T04:13","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5083%2C-73.5644&destination=45.6089%2C-73.5595&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5083%2C-73.5644&destination=45.6089%2C-73.5595&travelmode=transit","gTransitTime":77.6,"gTransitTransfers":0,"gTransitModes":["Walk","Bus"],"gTransitDistance":"15.8 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Ren\u00e9-L\u00e9vesque / Jeanne-Mance","departure":"04:13","arrival":"04:17","elapsedMin":4.8,"distance":"333 m"},{"mode":"wait","label":"Wait for Bus 364","from":"Ren\u00e9-L\u00e9vesque / Jeanne-Mance","to":"Ren\u00e9-L\u00e9vesque / Jeanne-Mance","departure":"04:17","arrival":"04:43","elapsedMin":26.1,"distance":"0 m"},{"mode":"transit","label":"Bus 364","from":"Ren\u00e9-L\u00e9vesque / Jeanne-Mance","to":"De Ch\u00e2teauneuf / De la Loire","departure":"04:43","arrival":"05:26","elapsedMin":42.5,"distance":"15.2 km"},{"mode":"walk","label":"Walk","from":"De Ch\u00e2teauneuf / De la Loire","to":"Destination","departure":"05:26","arrival":"05:30","elapsedMin":4.2,"distance":"286 m"}]},{"appTime":55.8,"appTransfers":0,"appModes":["Walk","Bus"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Sherbrooke / Redpath","departure":"03:35","arrival":"03:38","elapsedMin":3.5,"distance":"261 m"},{"mode":"wait","label":"Wait for Bus 356","from":"Sherbrooke / Redpath","to":"Sherbrooke / Redpath","departure":"03:38","arrival":"04:01","elapsedMin":22.5,"distance":"0 m"},{"mode":"transit","label":"Bus 356","from":"Sherbrooke / Redpath","to":"Universit\u00e9 Concordia / Campus Loyola","departure":"04:01","arrival":"04:28","elapsedMin":27.8,"distance":"7.6 km"},{"mode":"walk","label":"Walk","from":"Universit\u00e9 Concordia / Campus Loyola","to":"Destination","departure":"04:28","arrival":"04:30","elapsedMin":2.0,"distance":"144 m"}],"appDistance":"8.0 km","error":null,"elapsedSec":3.71,"id":31,"departureTime":"2026-08-15T03:35","gBixiLink":null,"gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4966%2C-73.5789&destination=45.4585%2C-73.6398&travelmode=transit","gTransitTime":55.9,"gTransitTransfers":0,"gTransitModes":["Walk","Bus"],"gTransitDistance":"7.8 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Sherbrooke / Redpath","departure":"03:35","arrival":"03:39","elapsedMin":4.2,"distance":"260 m"},{"mode":"wait","label":"Wait for Bus 356","from":"Sherbrooke / Redpath","to":"Sherbrooke / Redpath","departure":"03:39","arrival":"04:01","elapsedMin":21.8,"distance":"0 m"},{"mode":"transit","label":"Bus 356","from":"Sherbrooke / Redpath","to":"Universit\u00e9 Concordia / Campus Loyola","departure":"04:01","arrival":"04:28","elapsedMin":27.8,"distance":"7.3 km"},{"mode":"walk","label":"Walk","from":"Universit\u00e9 Concordia / Campus Loyola","to":"Destination","departure":"04:28","arrival":"04:30","elapsedMin":2.1,"distance":"155 m"}]},{"appTime":19.2,"appTransfers":0,"appModes":["Bus"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Saint-Denis / Rachel","departure":"02:30","arrival":"02:31","elapsedMin":1.1,"distance":"83 m"},{"mode":"wait","label":"Wait for Bus 361","from":"Saint-Denis / Rachel","to":"Saint-Denis / Rachel","departure":"02:31","arrival":"02:35","elapsedMin":4.5,"distance":"0 m"},{"mode":"transit","label":"Bus 361","from":"Saint-Denis / Rachel","to":"Saint-Denis / Jean-Talon","departure":"02:35","arrival":"02:46","elapsedMin":10.3,"distance":"3.3 km"},{"mode":"walk","label":"Walk","from":"Saint-Denis / Jean-Talon","to":"Destination","departure":"02:46","arrival":"02:49","elapsedMin":3.2,"distance":"236 m"}],"appDistance":"3.6 km","error":null,"elapsedSec":3.97,"id":32,"departureTime":"2026-08-15T02:30","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5225%2C-73.5793&destination=45.5367%2C-73.6151&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5225%2C-73.5793&destination=45.5367%2C-73.6151&travelmode=transit","gTransitTime":19.4,"gTransitTransfers":0,"gTransitModes":["Bus"],"gTransitDistance":"3.7 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Saint-Denis / Rachel","departure":"02:30","arrival":"02:31","elapsedMin":1.1,"distance":"83 m"},{"mode":"wait","label":"Wait for Bus 361","from":"Saint-Denis / Rachel","to":"Saint-Denis / Rachel","departure":"02:31","arrival":"02:35","elapsedMin":4.5,"distance":"0 m"},{"mode":"transit","label":"Bus 361","from":"Saint-Denis / Rachel","to":"Saint-Denis / Jean-Talon","departure":"02:35","arrival":"02:46","elapsedMin":10.3,"distance":"3.3 km"},{"mode":"walk","label":"Walk","from":"Saint-Denis / Jean-Talon","to":"Destination","departure":"02:46","arrival":"02:49","elapsedMin":3.4,"distance":"234 m"}]},{"appTime":29.2,"appTransfers":1,"appModes":["Bus","BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Upper-Lachine / de Clifton","departure":"08:00","arrival":"08:02","elapsedMin":2.8,"distance":"208 m"},{"mode":"transit","label":"Bus 104","from":"Upper-Lachine / de Clifton","to":"Oxford / Upper-Lachine","departure":"08:03","arrival":"08:05","elapsedMin":2.9,"distance":"404 m"},{"mode":"bike","label":"BIXI","from":"Oxford / Upper-Lachine","to":"M\u00e9tro Peel (de Maisonneuve / Stanley)","departure":"08:05","arrival":"08:28","elapsedMin":22.2,"distance":"4.8 km"},{"mode":"walk","label":"Walk","from":"M\u00e9tro Peel (de Maisonneuve / Stanley)","to":"Destination","departure":"08:28","arrival":"08:29","elapsedMin":1.1,"distance":"80 m"}],"appDistance":"5.5 km","error":null,"elapsedSec":4.6,"id":33,"departureTime":"2026-08-17T08:00","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4675%2C-73.6151&destination=45.4998%2C-73.5751&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4675%2C-73.6151&destination=45.4998%2C-73.5751&travelmode=transit","gTransitTime":43.6,"gTransitTransfers":1,"gTransitModes":["Walk","Bus","Metro"],"gTransitDistance":"6.2 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Upper-Lachine / De Clifton","departure":"08:00","arrival":"08:02","elapsedMin":2.5,"distance":"186 m"},{"mode":"wait","label":"Wait for Bus 104","from":"Upper-Lachine / De Clifton","to":"Upper-Lachine / De Clifton","departure":"08:02","arrival":"08:03","elapsedMin":0.5,"distance":"0 m"},{"mode":"transit","label":"Bus 104","from":"Upper-Lachine / De Clifton","to":"Station Atwater","departure":"08:03","arrival":"08:31","elapsedMin":28.0,"distance":"4.2 km"},{"mode":"walk","label":"Walk","from":"Station Atwater","to":"Atwater","departure":"08:31","arrival":"08:32","elapsedMin":1.7,"distance":"24 m"},{"mode":"wait","label":"Wait for Metro 1","from":"Atwater","to":"Atwater","departure":"08:32","arrival":"08:38","elapsedMin":5.3,"distance":"0 m"},{"mode":"transit","label":"Metro 1","from":"Atwater","to":"Peel","departure":"08:38","arrival":"08:41","elapsedMin":3.0,"distance":"1.7 km"},{"mode":"walk","label":"Walk","from":"Peel","to":"Destination","departure":"08:41","arrival":"08:43","elapsedMin":2.6,"distance":"153 m"}]},{"appTime":27.7,"appTransfers":1,"appModes":["Bus","BIXI"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Upper-Lachine / de Clifton","departure":"14:00","arrival":"14:02","elapsedMin":2.8,"distance":"208 m"},{"mode":"transit","label":"Bus 90","from":"Upper-Lachine / de Clifton","to":"Oxford / Upper-Lachine","departure":"14:02","arrival":"14:04","elapsedMin":1.6,"distance":"404 m"},{"mode":"bike","label":"BIXI","from":"Oxford / Upper-Lachine","to":"M\u00e9tro Peel (de Maisonneuve / Stanley)","departure":"14:04","arrival":"14:26","elapsedMin":22.2,"distance":"4.8 km"},{"mode":"walk","label":"Walk","from":"M\u00e9tro Peel (de Maisonneuve / Stanley)","to":"Destination","departure":"14:26","arrival":"14:27","elapsedMin":1.1,"distance":"80 m"}],"appDistance":"5.5 km","error":null,"elapsedSec":4.15,"id":34,"departureTime":"2026-08-17T14:00","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.4675%2C-73.6151&destination=45.4998%2C-73.5751&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.4675%2C-73.6151&destination=45.4998%2C-73.5751&travelmode=transit","gTransitTime":38.6,"gTransitTransfers":1,"gTransitModes":["Walk","Bus","Metro"],"gTransitDistance":"6.2 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Upper-Lachine / De Clifton","departure":"14:00","arrival":"14:02","elapsedMin":2.5,"distance":"186 m"},{"mode":"wait","label":"Wait for Bus 104","from":"Upper-Lachine / De Clifton","to":"Upper-Lachine / De Clifton","departure":"14:02","arrival":"14:03","elapsedMin":0.5,"distance":"0 m"},{"mode":"transit","label":"Bus 104","from":"Upper-Lachine / De Clifton","to":"Station Atwater","departure":"14:03","arrival":"14:26","elapsedMin":23.0,"distance":"4.2 km"},{"mode":"walk","label":"Walk","from":"Station Atwater","to":"Atwater","departure":"14:26","arrival":"14:27","elapsedMin":1.7,"distance":"24 m"},{"mode":"wait","label":"Wait for Metro 1","from":"Atwater","to":"Atwater","departure":"14:27","arrival":"14:33","elapsedMin":5.3,"distance":"0 m"},{"mode":"transit","label":"Metro 1","from":"Atwater","to":"Peel","departure":"14:33","arrival":"14:36","elapsedMin":3.0,"distance":"1.7 km"},{"mode":"walk","label":"Walk","from":"Peel","to":"Destination","departure":"14:36","arrival":"14:38","elapsedMin":2.6,"distance":"153 m"}]},{"appTime":28.9,"appTransfers":2,"appModes":["BIXI","Walk","Metro"],"appLegs":[{"mode":"bike","label":"BIXI","from":"Origin","to":"St-Denis / Ste-Catherine","departure":"23:55","arrival":"00:05","elapsedMin":10.0,"distance":"2.1 km"},{"mode":"walk","label":"Walk","from":"St-Denis / Ste-Catherine","to":"Station Berri-UQAM","departure":"00:05","arrival":"00:07","elapsedMin":2.0,"distance":"147 m"},{"mode":"wait","label":"Wait for Metro line 4","from":"Station Berri-UQAM","to":"Station Berri-UQAM","departure":"00:07","arrival":"00:10","elapsedMin":3.0,"distance":"0 m"},{"mode":"transit","label":"Metro line 4","from":"Station Berri-UQAM","to":"Station Jean-Drapeau","departure":"00:10","arrival":"00:13","elapsedMin":3.0,"distance":"2.2 km"},{"mode":"walk","label":"Walk","from":"Station Jean-Drapeau","to":"Parc Jean-Drapeau (Chemin Mac Donald)","departure":"00:13","arrival":"00:15","elapsedMin":2.8,"distance":"94 m"},{"mode":"bike","label":"BIXI","from":"Parc Jean-Drapeau (Chemin Mac Donald)","to":"Casino de Montr\u00e9al","departure":"00:15","arrival":"00:22","elapsedMin":6.3,"distance":"1.3 km"},{"mode":"walk","label":"Walk","from":"Casino de Montr\u00e9al","to":"Destination","departure":"00:22","arrival":"00:23","elapsedMin":1.8,"distance":"134 m"}],"appDistance":"5.9 km","error":null,"elapsedSec":8.02,"id":35,"departureTime":"2026-08-14T23:55","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5017%2C-73.5715&destination=45.5055%2C-73.5258&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5017%2C-73.5715&destination=45.5055%2C-73.5258&travelmode=transit","gTransitTime":37.3,"gTransitTransfers":0,"gTransitModes":["Walk","Bus"],"gTransitDistance":"7.1 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Station Bonaventure","departure":"23:55","arrival":"00:02","elapsedMin":7.5,"distance":"535 m"},{"mode":"wait","label":"Wait for Bus 777","from":"Station Bonaventure","to":"Station Bonaventure","departure":"00:02","arrival":"00:10","elapsedMin":7.5,"distance":"0 m"},{"mode":"transit","label":"Bus 777","from":"Station Bonaventure","to":"Casino de Montr\u00e9al","departure":"00:10","arrival":"00:26","elapsedMin":16.0,"distance":"6.1 km"},{"mode":"walk","label":"Walk","from":"Casino de Montr\u00e9al","to":"Destination","departure":"00:26","arrival":"00:32","elapsedMin":6.3,"distance":"460 m"}]},{"appTime":50.5,"appTransfers":1,"appModes":["Walk","Bus"],"appLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Saint-Denis / Marie-Anne","departure":"02:30","arrival":"02:33","elapsedMin":3.3,"distance":"240 m"},{"mode":"wait","label":"Wait for Bus 361","from":"Saint-Denis / Marie-Anne","to":"Saint-Denis / Marie-Anne","departure":"02:33","arrival":"02:34","elapsedMin":1.2,"distance":"0 m"},{"mode":"transit","label":"Bus 361","from":"Saint-Denis / Marie-Anne","to":"Ren\u00e9-L\u00e9vesque / Atateken","departure":"02:34","arrival":"02:42","elapsedMin":7.9,"distance":"2.6 km"},{"mode":"wait","label":"Wait for Bus 350","from":"Ren\u00e9-L\u00e9vesque / Atateken","to":"Ren\u00e9-L\u00e9vesque / Atateken","departure":"02:42","arrival":"02:50","elapsedMin":7.8,"distance":"0 m"},{"mode":"transit","label":"Bus 350","from":"Ren\u00e9-L\u00e9vesque / Atateken","to":"Station Verdun (de Verdun / Willibrord)","departure":"02:50","arrival":"03:17","elapsedMin":27.1,"distance":"8.5 km"},{"mode":"walk","label":"Walk","from":"Station Verdun (de Verdun / Willibrord)","to":"Destination","departure":"03:17","arrival":"03:20","elapsedMin":3.2,"distance":"237 m"}],"appDistance":"11.5 km","error":null,"elapsedSec":3.55,"id":36,"departureTime":"2026-08-17T02:30","gBixiLink":null,"gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5241%2C-73.5809&destination=45.4589%2C-73.5697&travelmode=transit","gTransitTime":50.8,"gTransitTransfers":1,"gTransitModes":["Walk","Bus"],"gTransitDistance":"11.6 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Saint-Denis / Marie-Anne","departure":"02:30","arrival":"02:33","elapsedMin":3.4,"distance":"229 m"},{"mode":"wait","label":"Wait for Bus 361","from":"Saint-Denis / Marie-Anne","to":"Saint-Denis / Marie-Anne","departure":"02:33","arrival":"02:34","elapsedMin":1.1,"distance":"0 m"},{"mode":"transit","label":"Bus 361","from":"Saint-Denis / Marie-Anne","to":"Atateken / Ren\u00e9-L\u00e9vesque","departure":"02:34","arrival":"02:41","elapsedMin":7.4,"distance":"2.5 km"},{"mode":"walk","label":"Walk","from":"Atateken / Ren\u00e9-L\u00e9vesque","to":"Ren\u00e9-L\u00e9vesque / Atateken","departure":"02:41","arrival":"02:42","elapsedMin":0.3,"distance":"20 m"},{"mode":"wait","label":"Wait for Bus 350","from":"Ren\u00e9-L\u00e9vesque / Atateken","to":"Ren\u00e9-L\u00e9vesque / Atateken","departure":"02:42","arrival":"02:50","elapsedMin":8.0,"distance":"0 m"},{"mode":"transit","label":"Bus 350","from":"Ren\u00e9-L\u00e9vesque / Atateken","to":"Station Verdun","departure":"02:50","arrival":"03:17","elapsedMin":27.1,"distance":"8.6 km"},{"mode":"walk","label":"Walk","from":"Station Verdun","to":"Destination","departure":"03:17","arrival":"03:20","elapsedMin":3.5,"distance":"249 m"}]},{"appTime":44.6,"appTransfers":2,"appModes":["BIXI","Bus"],"appLegs":[{"mode":"bike","label":"BIXI","from":"Origin","to":"du Parc / Villeneuve","departure":"03:00","arrival":"03:14","elapsedMin":14.6,"distance":"3.1 km"},{"mode":"transit","label":"Bus 365","from":"du Parc / Villeneuve","to":"Henri-Bourassa / de l'Acadie","departure":"03:14","arrival":"03:37","elapsedMin":22.6,"distance":"8.1 km"},{"mode":"wait","label":"Wait for Bus 380","from":"Henri-Bourassa / de l'Acadie","to":"Henri-Bourassa / de l'Acadie","departure":"03:37","arrival":"03:38","elapsedMin":0.5,"distance":"0 m"},{"mode":"transit","label":"Bus 380","from":"Henri-Bourassa / de l'Acadie","to":"Station Henri-Bourassa","departure":"03:38","arrival":"03:43","elapsedMin":5.5,"distance":"2.4 km"},{"mode":"walk","label":"Walk","from":"Station Henri-Bourassa","to":"Destination","departure":"03:43","arrival":"03:44","elapsedMin":1.1,"distance":"79 m"}],"appDistance":"13.6 km","error":null,"elapsedSec":9.43,"id":37,"departureTime":"2026-08-17T03:00","gBixiLink":"https://www.google.com/maps/dir/?api=1&origin=45.5017%2C-73.5715&destination=45.5546%2C-73.6693&travelmode=bicycling","gTransitLink":"https://www.google.com/maps/dir/?api=1&origin=45.5017%2C-73.5715&destination=45.5546%2C-73.6693&travelmode=transit","gTransitTime":49.4,"gTransitTransfers":1,"gTransitModes":["Walk","Bus"],"gTransitDistance":"11.9 km","gTransitLegs":[{"mode":"walk","label":"Walk","from":"Origin","to":"Ren\u00e9-L\u00e9vesque / Mansfield","departure":"03:00","arrival":"03:04","elapsedMin":4.8,"distance":"306 m"},{"mode":"wait","label":"Wait for Bus 747","from":"Ren\u00e9-L\u00e9vesque / Mansfield","to":"Ren\u00e9-L\u00e9vesque / Mansfield","departure":"03:04","arrival":"03:06","elapsedMin":1.2,"distance":"0 m"},{"mode":"transit","label":"Bus 747","from":"Ren\u00e9-L\u00e9vesque / Mansfield","to":"Ren\u00e9-L\u00e9vesque / Saint-Laurent","departure":"03:06","arrival":"03:10","elapsedMin":4.1,"distance":"1.2 km"},{"mode":"walk","label":"Walk","from":"Ren\u00e9-L\u00e9vesque / Saint-Laurent","to":"Saint-Laurent / Ren\u00e9-L\u00e9vesque","departure":"03:10","arrival":"03:10","elapsedMin":0.7,"distance":"42 m"},{"mode":"wait","label":"Wait for Bus 363","from":"Saint-Laurent / Ren\u00e9-L\u00e9vesque","to":"Saint-Laurent / Ren\u00e9-L\u00e9vesque","departure":"03:10","arrival":"03:18","elapsedMin":7.7,"distance":"0 m"},{"mode":"transit","label":"Bus 363","from":"Saint-Laurent / Ren\u00e9-L\u00e9vesque","to":"Terminus Henri-Bourassa","departure":"03:18","arrival":"03:48","elapsedMin":29.5,"distance":"10.3 km"},{"mode":"walk","label":"Walk","from":"Terminus Henri-Bourassa","to":"Destination","departure":"03:48","arrival":"03:49","elapsedMin":1.4,"distance":"80 m"}]}];
+
+const MODE_OPTIONS = ["Walk","BIXI","E-BIXI","Bus","Metro","REM"];
+const STORE_KEY = "mtl-trip-planner-validation-v2";
+const OLD_STORE_KEY = "mtl-trip-planner-validation-v1";
+
+function pad(n){ return String(n).padStart(2,"0"); }
+function toLocalInputValue(d){
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function nextDeparture(defaultTime, dayType){
+  const [hh, mm] = defaultTime.split(":").map(Number);
+  const now = new Date();
+  let candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
+  if(candidate <= now) candidate.setDate(candidate.getDate() + 1);
+  if(dayType === "weekday"){
+    while(candidate.getDay() === 0 || candidate.getDay() === 6) candidate.setDate(candidate.getDate() + 1);
+  } else if(dayType === "weekend"){
+    while(candidate.getDay() !== 0 && candidate.getDay() !== 6) candidate.setDate(candidate.getDate() + 1);
+  }
+  return candidate;
+}
+
+function migrateFromV1(){
+  const old = localStorage.getItem(OLD_STORE_KEY);
+  if(!old) return {};
+  try{
+    const parsed = JSON.parse(old);
+    const migrated = {};
+    Object.keys(parsed).forEach(id => {
+      const e = parsed[id] || {};
+      const splitModes = s => String(s||"").split(/→|->/).map(x=>x.trim()).filter(Boolean);
+      migrated[id] = {
+        appTime: e.appTime || "", appTransfers: e.appTransfers || "", appModes: splitModes(e.appModes),
+        gTime: e.gTime || "", gTransfers: e.gTransfers || "", gModes: splitModes(e.gModes),
+        departureTime: "", status: e.status || "pending", notes: e.notes || "",
+      };
+    });
+    return migrated;
+  } catch(err){ return {}; }
+}
+
+function loadState(){
+  try{
+    const v2 = localStorage.getItem(STORE_KEY);
+    if(v2) return JSON.parse(v2);
+  } catch(err){ /* fall through */ }
+  return migrateFromV1();
+}
+function saveState(state){
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  document.getElementById("last-saved").textContent = "Last saved " + new Date().toLocaleTimeString();
+}
+let state = loadState();
+
+// Investigation findings from comparing live app-vs-Google runs, seeded into each route's own
+// Notes field (not the static "Testing:" focus text above) the first time that route is loaded
+// after this was added -- appended after a blank line if the user already typed something there,
+// same convention the "Import script results" handler already uses for its own auto-appended notes.
+const AUTO_NOTES = {
+  9: "The app books the 12:15 metro here rather than Google's 12:09. Departing right at 12:08 doesn't leave enough time to actually reach the platform, so the search rolls forward to the next Green-line departure.",
+  12: "Same effect as #9: the app boards the 07:37 REM rather than Google's 07:30, since departing right at REM's own scheduled 07:29/07:30 train doesn't leave enough time to reach the platform.",
+  11: "Unlike #9 and #12, the app actually boards the earlier REM (16:03) than Google (16:08) — Google chose a later train here, not the app. The app's roughly 2-minute final leg mostly reflects the time to walk from the platform to the street when leaving the station, not the short 20m walking distance itself; Google's itinerary doesn't count that exit time and ends directly at the platform.",
+  19: "The app boards the earlier metro (22:00) here compared to Google (22:06) — the difference comes from Google's own routing choice, not anything in the app.",
+  13: "The app and Google board and exit the metro at the identical times (10:10 to 10:16); the roughly 8.7-minute gap is entirely in the final walk. The app measures the walk from a single point on the station's platform, about 143m from the destination, rather than from the closest street entrance (only about 37m away) — so it calculates a longer walking detour than is actually necessary.",
+  21: "A genuine route-choice difference rather than a bug. The app rides Bus 186 straight to Honoré-Beaugrand then walks 1.3km (48.8min total). Google instead takes two buses and a one-stop metro ride to Radisson — closer to the destination — then walks 440m, but that route is still about 24 minutes slower overall (73.1min): the extra transfers cost more time than the shorter final walk saves.",
+};
+function seedAutoNote(id, entry){
+  const note = AUTO_NOTES[id];
+  if(!note || entry.autoNoteSeeded) return;
+  entry.notes = entry.notes ? entry.notes + "\n\n" + note : note;
+  entry.autoNoteSeeded = true;
+}
+
+function getEntry(id){
+  const r = ROUTES.find(x => x.id === id);
+  if(!state[id]){
+    state[id] = {
+      appTime:"", appTransfers:"", appDistance:"", appModes:[], appLegs:[],
+      gTransitTime:"", gTransitTransfers:"", gTransitDistance:"", gTransitModes:[], gTransitLegs:[], gTransitLink:"",
+      gBixiLink:"", gBixiTime:"", gBixiDistance:"", gBixiModes:[],
+      departureTime: toLocalInputValue(nextDeparture(r.defaultTime, r.dayType)),
+      status:"pending", notes:"",
+    };
+  } else if(!(new Date(state[id].departureTime) > new Date())){
+    // Previously-picked date/time has since passed -- roll forward to the next
+    // valid occurrence (same time of day, same weekday/weekend constraint) so the
+    // artifact never displays a stale, unreachable departure.
+    state[id].departureTime = toLocalInputValue(nextDeparture(r.defaultTime, r.dayType));
+  }
+  if(!Array.isArray(state[id].appLegs)){
+    state[id].appLegs = [];
+  }
+  if(state[id].appDistance === undefined) state[id].appDistance = "";
+  // "minor" (the old modes-agnostic 15-30% time-delta band) has no clean equivalent under the new
+  // modes-aware statuses -- fall back to "investigate" so it gets a fresh manual look rather than
+  // silently landing on an unstyled/unlabeled pill.
+  if(state[id].status === "minor") state[id].status = "investigate";
+  // Migrate the old 2-way schema (gTime/gTransfers/gDistance/gModes, a single merged "Google
+  // Maps" figure) into the 3-way schema's gTransit* fields -- whatever was typed in before was
+  // effectively a transit reading in practice, since bike-share was never tracked separately.
+  if(state[id].gTransitTime === undefined){
+    state[id].gTransitTime = state[id].gTime ?? "";
+    state[id].gTransitTransfers = state[id].gTransfers ?? "";
+    state[id].gTransitDistance = state[id].gDistance ?? "";
+    state[id].gTransitModes = Array.isArray(state[id].gModes) ? state[id].gModes : [];
+    delete state[id].gTime; delete state[id].gTransfers; delete state[id].gDistance; delete state[id].gModes;
+  }
+  // Google Transit never has a bike-share concept (see google_compare.py) -- strip any BIXI/E-BIXI
+  // chip on every load, not just during the migration above, since entries already migrated before
+  // this filter existed (or a stale imported JSON) can still be carrying one forward.
+  state[id].gTransitModes = (Array.isArray(state[id].gTransitModes) ? state[id].gTransitModes : [])
+    .filter(m => m !== "BIXI" && m !== "E-BIXI");
+  if(!Array.isArray(state[id].gTransitLegs)) state[id].gTransitLegs = [];
+  if(state[id].gTransitLink === undefined) state[id].gTransitLink = "";
+  if(state[id].gBixiLink === undefined) state[id].gBixiLink = "";
+  if(state[id].gBixiTime === undefined) state[id].gBixiTime = "";
+  if(state[id].gBixiDistance === undefined) state[id].gBixiDistance = "";
+  if(!Array.isArray(state[id].gBixiModes)) state[id].gBixiModes = [];
+  seedAutoNote(id, state[id]);
+  return state[id];
+}
+
+function statusLabel(s){
+  return {
+    pending:"Not tested",
+    match:"Match",
+    similar:"Similar",
+    mismatch:"Potential time mismatch",
+    slower:"Slower routing",
+    faster:"Faster Route",
+    investigate:"Investigate",
+  }[s] || "Not tested";
+}
+
+// Non-walk modes only -- walking-leg differences (extra/missing) never count against a modes match.
+function nonWalkModeSet(modes){
+  return new Set((modes||[]).filter(m => m !== "Walk"));
+}
+function sameModeSet(a, b){
+  if(a.size !== b.size) return false;
+  for(const m of a) if(!b.has(m)) return false;
+  return true;
+}
+
+// Picks which Google reading a route's Trip Planner result should be judged against: Google BIXI
+// only when the Trip Planner route was bike-only (matches "both biking only"), Google Transit
+// otherwise -- a Trip Planner route that merely includes BIXI alongside transit still compares to
+// Google Transit, since a bike-only Google BIXI reading has no transit modes to compare against.
+function pickReference(entry){
+  const appNonWalk = nonWalkModeSet(entry.appModes);
+  const appIsBixiOnly = appNonWalk.size > 0 && [...appNonWalk].every(m => m === "BIXI" || m === "E-BIXI");
+  const gBixiTime = parseFloat(entry.gBixiTime);
+  if(appIsBixiOnly && !isNaN(gBixiTime)){
+    return {time: entry.gBixiTime, modes: entry.gBixiModes, label: "Google BIXI"};
+  }
+  return {time: entry.gTransitTime, modes: entry.gTransitModes, label: "Google Transit"};
+}
+
+// Total-time-only comparison (no leg-by-leg breakdown involved). Returns null when there isn't
+// enough data yet (Trip Planner time or the relevant Google time missing).
+function computeComparison(entry){
+  const a = parseFloat(entry.appTime);
+  const ref = pickReference(entry);
+  const g = parseFloat(ref.time);
+  if(isNaN(a) || isNaN(g) || g === 0) return null;
+  const deltaPct = (a - g) / g * 100;
+  const modesMatch = sameModeSet(nonWalkModeSet(entry.appModes), nonWalkModeSet(ref.modes));
+  let status;
+  if(modesMatch){
+    status = Math.abs(deltaPct) <= 15 ? "match" : "mismatch";
+  } else {
+    status = a < g ? "faster" : "investigate";
+  }
+  return {deltaPct, modesMatch, refLabel: ref.label, status};
+}
+
+function modeChipsHtml(modes, colClass){
+  return modes.map((m,i) => `<span class="mode-chip">${m}<button type="button" class="chip-remove" data-remove-idx="${i}" aria-label="Remove ${m}">×</button></span>`).join("");
+}
+function modePaletteHtml(exclude){
+  const ex = exclude || [];
+  return MODE_OPTIONS.filter(m => !ex.includes(m)).map(m => `<button type="button" class="mode-add-btn" data-mode="${m}">+ ${m}</button>`).join("");
+}
+
+const LEG_LABELS = [["bus","Bus"],["metro","Metro"],["rem","REM"],["bixi","BIXI"]];
+// Filter-by-leg options for the Route list toolbar -- keyed off the App's own "Modes used" chip
+// labels (MODE_OPTIONS), i.e. what a route's result itinerary actually rode, not what it was
+// allowed to use (that's the separate "Allowed" chips / Allowed modes tab). "stm" groups under the
+// user-facing label "STM" since that's this app's own shorthand for Metro (see the "_STM" icon
+// filenames in map.js) -- it matches the "Metro" chip label, not a literal GTFS agency name.
+const LEG_FILTER_OPTIONS = [
+  ["bixi", ["BIXI","E-BIXI"]],
+  ["bus", ["Bus"]],
+  ["stm", ["Metro"]],
+  ["rem", ["REM"]],
+  ["walking", ["Walk"]],
+];
+const activeLegFilters = new Set();
+function routeMatchesLegFilter(appModes){
+  if(!activeLegFilters.size) return true;
+  const modes = appModes || [];
+  return LEG_FILTER_OPTIONS.some(([key, labels]) => activeLegFilters.has(key) && modes.some(m => labels.includes(m)));
+}
+const DEFAULT_ALLOWED_MODES = {bus:true, metro:true, rem:true, bixi:true, max_walk_minutes:null};
+function legChipsHtml(allowedModes){
+  const m = allowedModes || DEFAULT_ALLOWED_MODES;
+  const chips = LEG_LABELS.filter(([key]) => m[key]).map(([,label]) => `<span class="leg-chip">${label}</span>`);
+  if(m.max_walk_minutes != null){
+    chips.push(`<span class="leg-chip walk-cap">Walk ≤${m.max_walk_minutes}min</span>`);
+  }
+  return chips.join("");
+}
+
+// Which leg breakdown ("app" or "gtransit") is showing per route id -- module-level so it
+// survives render()'s full innerHTML rebuild on every data change/filter/search keystroke.
+const legsTabState = {};
+function getLegsTab(id){ return legsTabState[id] || "app"; }
+
+function legsTableHtml(legs){
+  if(!legs || !legs.length){
+    return `<p class="legs-empty">No leg-by-leg detail yet — import script results to populate this.</p>`;
+  }
+  const rows = legs.map(l => `
+    <tr>
+      <td class="leg-label">${l.label ?? l.mode ?? ""}</td>
+      <td>${l.from ?? "—"}</td>
+      <td>${l.to ?? "—"}</td>
+      <td class="mono">${l.departure ?? "—"}</td>
+      <td class="mono">${l.arrival ?? "—"}</td>
+      <td class="mono">${l.elapsedMin != null ? l.elapsedMin + " min" : "—"}</td>
+      <td class="mono">${l.distance ?? "—"}</td>
+    </tr>`).join("");
+  return `<table class="legs-table">
+    <thead><tr><th>Leg</th><th>From</th><th>To</th><th class="mono">Depart</th><th class="mono">Arrive</th><th class="mono">Elapsed</th><th class="mono">Distance</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+const listEl = document.getElementById("route-list");
+
+function render(){
+  listEl.innerHTML = "";
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const statusFilter = document.getElementById("filter-status").value;
+
+  ROUTES.forEach(r => {
+    const e = getEntry(r.id);
+    const haystack = (r.from+" "+r.to+" "+r.fromArea+" "+r.toArea+" "+r.tags.join(" ")+" "+r.focus).toLowerCase();
+    if(q && !haystack.includes(q)) return;
+    if(statusFilter && e.status !== statusFilter) return;
+    if(!routeMatchesLegFilter(e.appModes)) return;
+
+    const div = document.createElement("div");
+    div.className = "route";
+    div.dataset.id = r.id;
+
+    const cmp = computeComparison(e);
+    const timeBadge = e.departureTime ? e.departureTime.replace("T"," ") : "";
+    const bixiAllowed = (r.allowedModes || DEFAULT_ALLOWED_MODES).bixi !== false;
+    const gbixiBodyHtml = bixiAllowed ? `
+            <div class="field-row">
+              <div class="field"><label>Time (min)</label><input type="number" min="0" data-f="gBixiTime" value="${e.gBixiTime}"></div>
+              <div class="field"><label>Distance</label><input type="text" placeholder="e.g. 450 m" data-f="gBixiDistance" value="${e.gBixiDistance}"></div>
+            </div>
+            <div class="field wide">
+              <label>Modes used</label>
+              <div class="mode-chips">${modeChipsHtml(e.gBixiModes)}</div>
+              <div class="mode-palette" data-modes-field="gBixiModes">${modePaletteHtml(["Bus","Metro","REM"])}</div>
+            </div>
+            <p class="legs-empty" style="margin-top:0.3rem;">Google has no bike-share data API — check Google Maps yourself (Directions → Bicycling, same origin/destination) and enter what you see above.</p>`
+      : `<p class="legs-empty">BIXI isn't allowed for this route, so there's no comparison to make.</p>`;
+
+    div.innerHTML = `
+      <div class="route-head">
+        <span class="rid"><span class="chev">▸</span> #${String(r.id).padStart(2,"0")}</span>
+        <div class="rod">
+          <span class="from"><b>${r.from}</b><span class="area">${r.fromArea}</span><span class="addr">${r.fromAddr}</span></span>
+        </div>
+        <div class="rod">
+          <span class="to"><span class="arrow">→</span><b>${r.to}</b><span class="area">${r.toArea}</span><span class="addr">${r.toAddr}</span></span>
+        </div>
+        <span class="time-badge">${timeBadge}</span>
+        <div class="legs-col" title="Modes and walking-time limit allowed for this route — not necessarily what was actually used">
+          <span class="legs-col-label">Allowed</span>
+          <div class="legs">${legChipsHtml(r.allowedModes)}</div>
+        </div>
+        <span class="status-pill status-${e.status}">${statusLabel(e.status)}</span>
+      </div>
+      <div class="route-body">
+        <div class="focus-line"><b>About this trip:</b> ${r.focus}</div>
+        <div class="departure-row">
+          <label for="dep-${r.id}">Departure</label>
+          <input type="datetime-local" id="dep-${r.id}" data-f="departureTime" value="${e.departureTime}">
+        </div>
+        <div class="compare-grid">
+          <div class="compare-col app">
+            <h3>Trip Planner</h3>
+            <div class="field-row">
+              <div class="field"><label>Time (min)</label><input type="number" min="0" data-f="appTime" value="${e.appTime}"></div>
+              <div class="field"><label>Transfers</label><input type="number" min="0" data-f="appTransfers" value="${e.appTransfers}"></div>
+              <div class="field"><label>Distance</label><input type="text" placeholder="e.g. 450 m" data-f="appDistance" value="${e.appDistance}"></div>
+            </div>
+            <div class="field wide">
+              <label>Modes used</label>
+              <div class="mode-chips">${modeChipsHtml(e.appModes)}</div>
+              <div class="mode-palette" data-modes-field="appModes">${modePaletteHtml()}</div>
+            </div>
+          </div>
+          <div class="compare-col gmaps">
+            <h3>Google Transit</h3>
+            ${e.gTransitLink ? `
+            <a class="gmaps-link-btn" href="${e.gTransitLink}" target="_blank" rel="noopener">Open in Google Maps ↗</a>
+            <span class="gmaps-link-caption">Opens departing "now" — Google's link format can't carry an exact date/time. The figures below are what actually reflect the tested date/time.</span>
+            ` : ""}
+            <div class="field-row">
+              <div class="field"><label>Time (min)</label><input type="number" min="0" data-f="gTransitTime" value="${e.gTransitTime}"></div>
+              <div class="field"><label>Transfers</label><input type="number" min="0" data-f="gTransitTransfers" value="${e.gTransitTransfers}"></div>
+              <div class="field"><label>Distance</label><input type="text" placeholder="e.g. 450 m" data-f="gTransitDistance" value="${e.gTransitDistance}"></div>
+            </div>
+            <div class="field wide">
+              <label>Modes used</label>
+              <div class="mode-chips">${modeChipsHtml(e.gTransitModes)}</div>
+              <div class="mode-palette" data-modes-field="gTransitModes">${modePaletteHtml(["BIXI","E-BIXI"])}</div>
+            </div>
+          </div>
+          <div class="compare-col gbixi">
+            <h3>Google BIXI</h3>
+            ${gbixiBodyHtml}
+          </div>
+        </div>
+        <div class="legs-section">
+          <h3>Leg by leg</h3>
+          <div class="legs-tabs" role="tablist">
+            <button type="button" class="legs-tab-btn ${getLegsTab(r.id)==="app"?"active":""}" data-legs-tab="app" role="tab" aria-selected="${getLegsTab(r.id)==="app"}">Trip Planner</button>
+            <button type="button" class="legs-tab-btn ${getLegsTab(r.id)==="gtransit"?"active":""}" data-legs-tab="gtransit" role="tab" aria-selected="${getLegsTab(r.id)==="gtransit"}">Google Transit</button>
+          </div>
+          ${legsTableHtml(getLegsTab(r.id)==="gtransit" ? e.gTransitLegs : e.appLegs)}
+        </div>
+        <div class="verdict-row">
+          <span class="delta">${cmp ? `Time delta: <b>${cmp.deltaPct>0?"+":""}${cmp.deltaPct.toFixed(1)}%</b> (app vs. ${cmp.refLabel}${cmp.modesMatch ? "" : ", different modes"})` : "Time delta: —"}</span>
+          <select class="status-select" data-f="status">
+            <option value="pending" ${e.status==="pending"?"selected":""}>Not tested</option>
+            <option value="match" ${e.status==="match"?"selected":""}>Match</option>
+            <option value="similar" ${e.status==="similar"?"selected":""}>Similar</option>
+            <option value="mismatch" ${e.status==="mismatch"?"selected":""}>Potential time mismatch</option>
+            <option value="slower" ${e.status==="slower"?"selected":""}>Slower routing</option>
+            <option value="faster" ${e.status==="faster"?"selected":""}>Faster Route</option>
+            <option value="investigate" ${e.status==="investigate"?"selected":""}>Investigate</option>
+          </select>
+        </div>
+        <div class="field wide" style="margin-top:0.7rem;"><label>Notes</label><textarea data-f="notes" placeholder="Why the delta, what looked off, anything worth flagging…">${e.notes}</textarea></div>
+      </div>
+    `;
+
+    div.querySelector(".route-head").addEventListener("click", () => {
+      div.classList.toggle("open");
+    });
+
+    div.querySelectorAll("[data-f]").forEach(input => {
+      input.addEventListener("click", ev => ev.stopPropagation());
+      input.addEventListener("change", ev => {
+        const field = ev.target.dataset.f;
+        const entry = getEntry(r.id);
+        entry[field] = ev.target.value;
+        if(field === "appTime" || field === "gTransitTime" || field === "gBixiTime"){
+          const cmp = computeComparison(entry);
+          if(cmp) entry.status = cmp.status;
+        }
+        saveState(state);
+        render();
+      });
+    });
+
+    div.querySelectorAll(".legs-tab-btn").forEach(btn => {
+      btn.addEventListener("click", ev => {
+        ev.stopPropagation();
+        // Update in place (not a full render()) -- render() rebuilds every row's DOM from
+        // scratch and this app has no persisted "expanded" state, so a full render() here would
+        // immediately re-collapse the very row the user just clicked inside.
+        legsTabState[r.id] = btn.dataset.legsTab;
+        const section = btn.closest(".legs-section");
+        section.querySelectorAll(".legs-tab-btn").forEach(b => {
+          const active = b.dataset.legsTab === btn.dataset.legsTab;
+          b.classList.toggle("active", active);
+          b.setAttribute("aria-selected", active);
+        });
+        const tableWrap = section.querySelector(".legs-table, .legs-empty");
+        if(tableWrap) tableWrap.outerHTML = legsTableHtml(btn.dataset.legsTab === "gtransit" ? e.gTransitLegs : e.appLegs);
+      });
+    });
+
+    const MODES_FIELDS = ["appModes", "gTransitModes", "gBixiModes"];
+    div.querySelectorAll(".mode-add-btn").forEach(btn => {
+      btn.addEventListener("click", ev => {
+        ev.stopPropagation();
+        const field = btn.closest(".mode-palette").dataset.modesField;
+        const entry = getEntry(r.id);
+        entry[field].push(btn.dataset.mode);
+        if(MODES_FIELDS.includes(field)){
+          const cmp = computeComparison(entry);
+          if(cmp) entry.status = cmp.status;
+        }
+        saveState(state);
+        render();
+      });
+    });
+    div.querySelectorAll(".chip-remove").forEach(btn => {
+      btn.addEventListener("click", ev => {
+        ev.stopPropagation();
+        const field = btn.closest(".field").querySelector(".mode-palette").dataset.modesField;
+        const idx = parseInt(btn.dataset.removeIdx, 10);
+        const entry = getEntry(r.id);
+        entry[field].splice(idx, 1);
+        if(MODES_FIELDS.includes(field)){
+          const cmp = computeComparison(entry);
+          if(cmp) entry.status = cmp.status;
+        }
+        saveState(state);
+        render();
+      });
+    });
+
+    listEl.appendChild(div);
+  });
+
+  updateStats();
+}
+
+function updateStats(){
+  const counts = {pending:0,match:0,similar:0,mismatch:0,slower:0,faster:0,investigate:0};
+  const deltas = [];
+  ROUTES.forEach(r => {
+    const e = getEntry(r.id);
+    counts[e.status] = (counts[e.status]||0) + 1;
+    const cmp = computeComparison(e);
+    if(cmp) deltas.push(cmp.deltaPct);
+  });
+  document.getElementById("stat-pending").textContent = counts.pending;
+  document.getElementById("stat-match").textContent = counts.match + counts.similar;
+  document.getElementById("stat-faster").textContent = counts.faster;
+  document.getElementById("stat-mismatch").textContent = counts.mismatch + counts.slower;
+  document.getElementById("stat-investigate").textContent = counts.investigate;
+  const avgEl = document.getElementById("stat-avgdelta");
+  if(deltas.length){
+    const avg = deltas.reduce((s,v)=>s+v,0)/deltas.length;
+    avgEl.textContent = (avg>0?"+":"") + avg.toFixed(1) + "%";
+  } else {
+    avgEl.textContent = "—";
+  }
+}
+
+document.getElementById("search").addEventListener("input", render);
+document.getElementById("filter-status").addEventListener("change", render);
+document.querySelectorAll(".leg-filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const leg = btn.dataset.leg;
+    if(activeLegFilters.has(leg)){
+      activeLegFilters.delete(leg);
+      btn.classList.remove("active");
+    } else {
+      activeLegFilters.add(leg);
+      btn.classList.add("active");
+    }
+    render();
+  });
+});
+
+document.getElementById("btn-expand").addEventListener("click", () => {
+  document.querySelectorAll(".route").forEach(el => el.classList.add("open"));
+});
+document.getElementById("btn-collapse").addEventListener("click", () => {
+  document.querySelectorAll(".route").forEach(el => el.classList.remove("open"));
+});
+
+document.getElementById("btn-reset").addEventListener("click", () => {
+  if(!confirm("Clear all recorded results? This can't be undone.")) return;
+  state = {};
+  saveState(state);
+  render();
+});
+
+document.getElementById("btn-import").addEventListener("click", () => {
+  document.getElementById("import-file").click();
+});
+// Shared by both the manual "Import script results" file picker and the BAKED_RESULTS seed
+// below, so a fresh browser's first paint and a hand-triggered re-import behave identically.
+function applyResults(data){
+  let applied = 0, errored = 0, skipped = 0;
+  data.forEach(item => {
+    const r = ROUTES.find(x => x.id === item.id);
+    if(!r){ skipped++; return; }
+    const entry = getEntry(item.id);
+    if(item.departureTime) entry.departureTime = item.departureTime;
+    // Google side (testing/google_compare.py, gTransit* via --with-google and gBixiLink
+    // always) is independent of whether the app side succeeded, so it's applied before the
+    // app-error early-return below, not after.
+    if(item.gTransitTime !== undefined) entry.gTransitTime = item.gTransitTime ?? "";
+    if(item.gTransitTransfers !== undefined) entry.gTransitTransfers = item.gTransitTransfers ?? "";
+    if(item.gTransitDistance !== undefined) entry.gTransitDistance = item.gTransitDistance ?? "";
+    if(Array.isArray(item.gTransitModes)) entry.gTransitModes = item.gTransitModes.filter(m => m !== "BIXI" && m !== "E-BIXI");
+    if(Array.isArray(item.gTransitLegs)) entry.gTransitLegs = item.gTransitLegs;
+    if(item.gTransitLink !== undefined) entry.gTransitLink = item.gTransitLink || "";
+    if(item.gTransitTime === null){
+      entry.notes = (entry.notes ? entry.notes + "\n" : "") + `Google Transit (${new Date().toLocaleString()}): no appropriate route found${item.gTransitError ? " -- " + item.gTransitError : ""}`;
+    }
+    if(item.gBixiLink !== undefined) entry.gBixiLink = item.gBixiLink || "";
+    if(item.error){
+      entry.notes = (entry.notes ? entry.notes + "\n" : "") + `Script error (${new Date().toLocaleString()}): ${item.error}`;
+      errored++;
+      return;
+    }
+    if(item.appTime !== undefined) entry.appTime = item.appTime;
+    if(item.appTransfers !== undefined) entry.appTransfers = item.appTransfers;
+    if(item.appDistance !== undefined) entry.appDistance = item.appDistance;
+    if(Array.isArray(item.appModes)) entry.appModes = item.appModes;
+    if(Array.isArray(item.appLegs)) entry.appLegs = item.appLegs;
+    const cmp = computeComparison(entry);
+    if(cmp) entry.status = cmp.status;
+    applied++;
+  });
+  return {applied, errored, skipped};
+}
+
+document.getElementById("import-file").addEventListener("change", ev => {
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let data;
+    try{ data = JSON.parse(reader.result); }
+    catch(err){ alert("Could not parse that file as JSON."); ev.target.value = ""; return; }
+    if(!Array.isArray(data)){
+      alert("Expected a JSON array of result objects — the file testing/validate_routes.py writes.");
+      ev.target.value = ""; return;
+    }
+    const {applied, errored, skipped} = applyResults(data);
+    saveState(state);
+    render();
+    let msg = `Imported ${applied} result(s).`;
+    if(errored) msg += ` ${errored} route(s) reported a script error (see their Notes).`;
+    if(skipped) msg += ` ${skipped} entr${skipped===1?"y":"ies"} didn't match a known route id.`;
+    alert(msg);
+    ev.target.value = "";
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById("btn-export").addEventListener("click", () => {
+  const rows = [["#","From","From Area","To","To Area","Category","Tags","Departure","App Time (min)","App Transfers","App Distance","App Modes","Google Transit Time (min)","Google Transit Transfers","Google Transit Distance","Google Transit Modes","Google Transit Link","Google BIXI Link","Google BIXI Time (min)","Google BIXI Distance","Google BIXI Modes","Status","Notes"]];
+  ROUTES.forEach(r => {
+    const e = getEntry(r.id);
+    rows.push([r.id,r.from,r.fromArea,r.to,r.toArea,r.cat,r.tags.join("|"),e.departureTime,e.appTime,e.appTransfers,e.appDistance,e.appModes.join(" → "),e.gTransitTime,e.gTransitTransfers,e.gTransitDistance,e.gTransitModes.join(" → "),e.gTransitLink,e.gBixiLink,e.gBixiTime,e.gBixiDistance,e.gBixiModes.join(" → "),statusLabel(e.status),e.notes]);
+  });
+  const csv = rows.map(row => row.map(cell => {
+    const s = String(cell ?? "");
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+  }).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "route-validation-results.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+function modeFlagHtml(allowed){
+  return `<span class="mode-flag ${allowed ? "on" : "off"}">${allowed ? "✓" : "—"}</span>`;
+}
+
+function renderModesTab(){
+  const rows = ROUTES.map(r => {
+    const m = r.allowedModes || DEFAULT_ALLOWED_MODES;
+    const walkCap = m.max_walk_minutes != null ? `≤${m.max_walk_minutes} min` : "No cap";
+    return `<tr>
+      <td class="mono">#${String(r.id).padStart(2,"0")}</td>
+      <td>${r.from}<span class="arrow" style="margin:0 0.3rem;">→</span>${r.to}</td>
+      <td><div class="tags">${r.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div></td>
+      <td>${modeFlagHtml(m.bus)}</td>
+      <td>${modeFlagHtml(m.metro)}</td>
+      <td>${modeFlagHtml(m.rem)}</td>
+      <td>${modeFlagHtml(m.bixi)}</td>
+      <td class="mono">${walkCap}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("modes-table-body").innerHTML = rows;
+
+  const allFour = ROUTES.filter(r => !r.allowedModes || (r.allowedModes.bus && r.allowedModes.metro && r.allowedModes.rem && r.allowedModes.bixi)).length;
+  const bixiOff = ROUTES.filter(r => r.allowedModes && r.allowedModes.bixi === false).length;
+  const transitRestricted = ROUTES.filter(r => r.allowedModes && !(r.allowedModes.bus && r.allowedModes.metro && r.allowedModes.rem)).length;
+  const walkCapped = ROUTES.filter(r => r.allowedModes && r.allowedModes.max_walk_minutes != null).length;
+  document.getElementById("modes-summary").innerHTML = `
+    <div class="stat"><div class="n">${ROUTES.length}</div><div class="l">Total routes</div></div>
+    <div class="stat"><div class="n">${allFour}</div><div class="l">All 4 modes allowed</div></div>
+    <div class="stat"><div class="n">${bixiOff}</div><div class="l">BIXI forced off</div></div>
+    <div class="stat"><div class="n">${transitRestricted}</div><div class="l">Bus-only or Metro/REM-only</div></div>
+    <div class="stat"><div class="n">${walkCapped}</div><div class="l">Walk-time capped</div></div>
+  `;
+}
+
+function switchTab(name){
+  const showList = name === "list";
+  document.getElementById("tab-panel-list").classList.toggle("hidden", !showList);
+  document.getElementById("tab-panel-modes").classList.toggle("hidden", showList);
+  document.getElementById("tab-btn-list").classList.toggle("active", showList);
+  document.getElementById("tab-btn-modes").classList.toggle("active", !showList);
+  document.getElementById("tab-btn-list").setAttribute("aria-selected", String(showList));
+  document.getElementById("tab-btn-modes").setAttribute("aria-selected", String(!showList));
+}
+document.getElementById("tab-btn-list").addEventListener("click", () => switchTab("list"));
+document.getElementById("tab-btn-modes").addEventListener("click", () => switchTab("modes"));
+
+// Only a brand-new browser (no v1 or v2 localStorage at all) gets the baked-in snapshot --
+// anyone who has ever saved local edits keeps exactly what they had, untouched.
+if(Object.keys(state).length === 0){
+  applyResults(BAKED_RESULTS);
+}
+render();
+renderModesTab();
+</script>
+
+</body></html>

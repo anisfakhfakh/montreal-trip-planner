@@ -1,0 +1,18 @@
+services:
+  osrm-foot:
+    image: osrm/osrm-backend
+    command: osrm-routed --algorithm mld /data/montreal.osrm
+    volumes:
+      - ./data/raw/osm/foot:/data
+    ports:
+      - "5001:5000"
+    restart: unless-stopped
+
+  osrm-bike:
+    image: osrm/osrm-backend
+    command: osrm-routed --algorithm mld /data/montreal.osrm
+    volumes:
+      - ./data/raw/osm/bike:/data
+    ports:
+      - "5002:5000"
+    restart: unless-stopped

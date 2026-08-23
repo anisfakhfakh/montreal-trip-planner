@@ -1,0 +1,966 @@
+:root {
+  --color-primary: #0089ce;
+  --color-primary-hover: #006fa8;
+  --color-primary-tint: #e6f3fa;
+  --color-bg: #f6f8fa;
+  --color-surface: #ffffff;
+  --color-border: #e1e6ea;
+  --color-text: #1a2733;
+  --color-text-muted: #5c6b77;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", sans-serif;
+  color: var(--color-text);
+}
+
+#app {
+  display: flex;
+  min-height: 100vh;
+  align-items: flex-start;
+}
+
+/* Sidebar grows to fit its content (no internal scrollbar) -- when the itinerary list is
+   taller than the viewport, the whole page scrolls instead while the map (position: sticky
+   below) stays pinned in view. */
+#sidebar {
+  position: relative;
+  width: 420px;
+  flex-shrink: 0;
+  padding: 1.25rem;
+  background: var(--color-bg);
+  border-right: 1px solid var(--color-border);
+}
+
+#sidebar-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+  background: transparent;
+  touch-action: none;
+}
+
+#sidebar-resize-handle:hover,
+#sidebar-resize-handle:active {
+  background: var(--color-primary-tint);
+}
+
+#sidebar h1 {
+  font-size: 1.25rem;
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+#instructions {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+#map {
+  flex-grow: 1;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+/* Cards -- give each stage of planning a trip (search, options, results) its own visual group
+   instead of one flat column. */
+.sidebar-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+#results:not(:empty) {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+#search-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.search-field {
+  position: relative;
+}
+
+.search-field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.search-input-row {
+  position: relative;
+}
+
+.search-input-row input {
+  width: 100%;
+  padding: 0.5rem 2rem 0.5rem 0.6rem;
+  border: 1px solid #c7d0d5;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.field-clear {
+  position: absolute;
+  right: 0.3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+}
+
+.field-clear:hover {
+  color: var(--color-text);
+  background: transparent;
+}
+
+.search-results {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  border-radius: 6px;
+  position: relative;
+  z-index: 10;
+}
+
+.search-results:not(:empty) {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: 0 4px 10px rgba(20, 30, 40, 0.08);
+}
+
+.search-results li {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.search-results li:last-child {
+  border-bottom: none;
+}
+
+.search-results li[data-idx]:hover {
+  background: var(--color-primary-tint);
+}
+
+.search-results li.search-error {
+  color: var(--color-text-muted);
+  cursor: default;
+  font-style: italic;
+}
+
+#use-location {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.7rem;
+}
+
+#ebike-option {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+}
+
+#ebike-option label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.timing-toggle {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.timing-toggle-btn {
+  flex: 1;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.5rem;
+}
+
+.timing-toggle-btn.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+#leave-at-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+#leave-at-date,
+#leave-at-time {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #c7d0d5;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.bixi-planned-note {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-left: 3px solid #c0392b;
+  background: #fbeaea;
+  color: #8a2418;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.82rem;
+}
+
+#mode-selection {
+  font-size: 0.9rem;
+}
+
+.mode-selection-title {
+  margin: 0 0 0.4rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+/* Admin/maintenance card, deliberately plain -- not part of the rider-facing planning flow. */
+.data-refresh-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.data-refresh-btn {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.6rem;
+  white-space: nowrap;
+}
+
+.data-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.data-refresh-status {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.data-refresh-status.running { color: #b8860b; }
+.data-refresh-status.done { color: #2e7d32; }
+.data-refresh-status.failed { color: #c0392b; }
+
+#mode-selection label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  padding: 0.1rem 0;
+}
+
+.max-walk-label {
+  margin-top: 0.4rem;
+  cursor: default !important;
+}
+
+#max-walk-minutes {
+  width: 4.5rem;
+  padding: 0.2rem 0.35rem;
+  border: 1px solid #c7d0d5;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.button-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+#plan-trip-hint {
+  flex-grow: 1;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+button {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid #c7d0d5;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+button:hover:not(:disabled) {
+  background: var(--color-bg);
+}
+
+#plan-trip-btn {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  flex-grow: 1;
+}
+
+#plan-trip-btn:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+/* Header + option rows share one grid column template (defined once, below) so values line up
+   exactly under their header regardless of how much text either row happens to render -- a
+   flex row per <li> can't guarantee that, since each row sizes its own columns independently. */
+.itinerary-table {
+  overflow-x: auto;
+  margin: 0 0 0.75rem;
+}
+
+.itinerary-header,
+.itinerary-option {
+  display: grid;
+  grid-template-columns: minmax(5rem, 1fr) 3rem 2.6rem 2.2rem 3.4rem;
+  column-gap: 0.5rem;
+  min-width: 18rem;
+}
+
+/* Grid items default to min-width: auto (their content's min-content size), which lets a long
+   header word push a fixed-width column wider than its track and break alignment/scroll sizing
+   -- min-width: 0 here makes the explicit column widths above the real, final word. */
+.itinerary-header > *,
+.itinerary-option > * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itinerary-options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.itinerary-option {
+  align-items: center;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  background: white;
+}
+
+.itinerary-option:last-child {
+  border-bottom: none;
+  border-radius: 0 0 6px 6px;
+}
+
+.itinerary-option:hover {
+  background: var(--color-bg);
+}
+
+.itinerary-option.selected {
+  background: var(--color-primary-tint);
+  font-weight: 600;
+}
+
+.option-label {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option-legs {
+  color: var(--color-text-muted);
+  font-weight: normal;
+}
+
+.itinerary-option .option-risk {
+  color: var(--color-text-muted);
+  font-weight: normal;
+  font-size: 0.78rem;
+  background: var(--color-bg);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  width: fit-content;
+}
+
+.option-construction {
+  color: var(--color-text-muted);
+  font-weight: normal;
+}
+
+.reroute-btn {
+  margin-left: 0.4rem;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid #ff8f00;
+  background: white;
+  color: #ff8f00;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.reroute-btn:hover {
+  background: #fff3e0;
+}
+
+.reroute-btn:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.event-icon {
+  background: transparent;
+  border: none;
+}
+
+.itinerary-header {
+  align-items: center;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.itinerary-header + .itinerary-options {
+  border-radius: 0 0 6px 6px;
+}
+
+.header-cell {
+  cursor: pointer;
+  user-select: none;
+}
+
+.header-cell:hover {
+  color: var(--color-primary);
+}
+
+.itinerary-option.unavailable {
+  cursor: default;
+  color: #999;
+}
+
+.itinerary-option.unavailable:hover {
+  background: white;
+}
+
+.itinerary-option .option-message {
+  grid-column: 2 / -1;
+  font-style: italic;
+  font-size: 0.8rem;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+#results h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+
+#results .legs {
+  padding-left: 0;
+  list-style: none;
+  font-size: 0.9rem;
+}
+
+#results .legs li {
+  cursor: pointer;
+  padding: 0.3rem 0.4rem;
+  border-radius: 4px;
+  margin: 0 -0.4rem;
+}
+
+#results .legs li:not(.leg-divider):hover {
+  background: var(--color-bg);
+}
+
+#results .error {
+  color: #c0392b;
+}
+
+#results .legs .risk-danger {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+#results .legs .risk-warn {
+  color: #d35400;
+  font-weight: 600;
+}
+
+/* Mini-timeline leg rows -- a colored/dashed bar (matching the map's own leg colors) plus a
+   two-line text block, replacing the old plain-text leg description. */
+.leg-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4rem;
+  min-height: 2.2rem;
+}
+
+.leg-icon {
+  flex-shrink: 0;
+  width: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.leg-icon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.leg-icon-bus-badge img {
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+}
+
+.leg-bar {
+  flex-shrink: 0;
+  width: 6px;
+  border-radius: 3px;
+}
+
+.leg-bar-transit,
+.leg-bar-bike {
+  width: 6px;
+}
+
+.leg-bar-walk {
+  width: 0;
+  border-left: 3px dashed #555555;
+  margin-left: 1.5px;
+}
+
+.leg-bar-wait {
+  width: 3px;
+  background: #c7d0d5;
+  align-self: center;
+  min-height: 1.2rem;
+}
+
+.leg-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.leg-text-primary {
+  font-weight: 600;
+}
+
+.leg-text-secondary {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.leg-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.02rem;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5rem 0.4rem;
+  cursor: default;
+}
+
+/* Same width as .leg-icon so the pin sits in the same left column as the mode logos above/below
+   it, keeping the timeline's icon column visually continuous. */
+.leg-divider-icon {
+  flex-shrink: 0;
+  width: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.leg-divider-text {
+  min-width: 0;
+}
+
+.leg-divider-pin {
+  width: 14px;
+  height: 20px;
+}
+
+.leg-divider-time {
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.weather-debrief {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  background: #eef3f8;
+  color: #2c3e50;
+}
+
+.weather-debrief.harsh {
+  background: #fdf3ea;
+  color: #8a4b0a;
+  font-weight: 600;
+}
+
+.weather-debrief .weather-icon {
+  font-size: 1.1rem;
+}
+
+.weather-note {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-left: 3px solid #d35400;
+  background: #fdf3ea;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.85rem;
+}
+
+.weather-note p {
+  margin: 0 0 0.5rem;
+}
+
+.weather-note-empty {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.weather-alt-btn {
+  background: #d35400;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.weather-alt-btn:hover {
+  background: #b8480a;
+}
+
+.bixi-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #c0392b;
+  border: 1px solid white;
+  color: white;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.legend {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(20, 30, 40, 0.18);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  overflow: hidden;
+  min-width: 170px;
+}
+
+.legend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.legend-header h4 {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.legend-toggle {
+  border: none;
+  background: transparent;
+  padding: 0 0.3rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.legend-toggle:hover {
+  background: transparent;
+  color: var(--color-text);
+}
+
+.legend-body {
+  padding: 0.6rem 0.75rem;
+}
+
+.legend-body.collapsed {
+  display: none;
+}
+
+.legend-group {
+  margin-bottom: 0.6rem;
+}
+
+.legend-group:last-child {
+  margin-bottom: 0;
+}
+
+.legend-group h5 {
+  margin: 0 0 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.transit-logo-icon {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.bus-logo-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+  display: block;
+}
+
+.bus-logo-label {
+  background: white;
+  border-radius: 3px;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0089cf;
+  line-height: 1.6;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+.transit-line-logo {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+.next-departures-list {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.next-departures-list li {
+  padding: 0.1rem 0;
+}
+
+.next-departures-empty {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.live-badge {
+  background: #d32f2f;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot-cluster {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.legend-line {
+  width: 16px;
+  height: 3px;
+  flex-shrink: 0;
+}
+
+.legend-line.dashed {
+  height: 0;
+  border-top: 3px dashed #555555;
+  background: none;
+}
+
+.legend-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+/* Floating next-departures panel (hover a transit leg in the sidebar) */
+.floating-departures {
+  position: fixed;
+  z-index: 1000;
+  max-width: 220px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(20, 30, 40, 0.25);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.floating-departures strong {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.floating-departures-caption {
+  margin: 0 0 0.25rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+/* Skeleton loading state while /api/plan_trip is in flight */
+.skeleton-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-item {
+  height: 2.4rem;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--color-bg) 25%, #eef2f4 50%, var(--color-bg) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.3s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Pin-drop marker animation (origin/destination) */
+.pin-drop {
+  animation: pin-drop 0.35s ease-out;
+}
+
+@keyframes pin-drop {
+  0% { transform: translateY(-16px); opacity: 0; }
+  70% { transform: translateY(2px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Toasts */
+#toast-container {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--color-text);
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-error {
+  background: #c0392b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pin-drop, .skeleton-item, .toast {
+    animation: none !important;
+    transition: none !important;
+  }
+}
